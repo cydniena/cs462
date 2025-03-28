@@ -7,6 +7,6 @@ const bookingSchema = new mongoose.Schema({
     BookingEndTime: { type: Date, required: true },
     Building: { type: String, required: true },
     FacilityName: { type: String, required: true },
-}, { collection: 'bookings' }); // Explicitly set the collection name
+}, { collection: 'bookings' });
 
 module.exports = mongoose.model('Booking', bookingSchema);
