@@ -3,7 +3,8 @@ require('dotenv').config(); // Load environment variables from .env
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const itemRoutes = require('./routes/itemRoutes');
+//const itemRoutes = require('./routes/itemRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
 const port = 5005;
@@ -23,7 +24,8 @@ mongoose.connect(atlasUri, {
 .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
 
 // Routes
-app.use('/api/items', itemRoutes);
+// app.use('/api/items', itemRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Start the server
 app.listen(port, () => {
