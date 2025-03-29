@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-//const itemRoutes = require('./routes/itemRoutes');
+const roomRoutes = require('./routes/roomRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
@@ -23,7 +23,7 @@ mongoose.connect(atlasUri, {
 .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
 
 // Routes
-// app.use('/api/items', itemRoutes);
+app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 app.listen(port, () => {

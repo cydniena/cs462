@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; // Import the CSS file for styling
+import './css/data.css'; // Import the CSS file for styling
 
-function App() {
+function BookingData() {
     const [bookings, setBookings] = useState([]); // Store list of bookings
     const [newBooking, setNewBooking] = useState({
         BookingReferenceNumber: '',
@@ -15,14 +15,16 @@ function App() {
 
     // Fetch all bookings from the backend
     useEffect(() => {
-        axios.get('http://localhost:5005/api/bookings')
+        axios
+            .get('http://localhost:5005/api/bookings') // Ensure this matches your backend endpoint
             .then((response) => setBookings(response.data))
             .catch((error) => console.error('Error fetching bookings:', error));
     }, []);
 
     // Add a new booking
     const addBooking = () => {
-        axios.post('http://localhost:5005/api/bookings', newBooking)
+        axios
+            .post('http://localhost:5005/api/bookings', newBooking)
             .then((response) => {
                 setBookings([...bookings, response.data]);
                 setNewBooking({
@@ -39,7 +41,8 @@ function App() {
 
     // Delete a booking
     const deleteBooking = (id) => {
-        axios.delete(`http://localhost:5005/api/bookings/${id}`)
+        axios
+            .delete(`http://localhost:5005/api/bookings/${id}`)
             .then(() => {
                 setBookings(bookings.filter((booking) => booking._id !== id));
             })
@@ -48,8 +51,8 @@ function App() {
 
     return (
         <div className="container">
-            <h1>Booking Management</h1>
-            
+            <h1>Occupancy Data Management</h1>
+
             {/* Form to add a new booking */}
             <div className="form-container">
                 <h2>Add New Booking</h2>
@@ -127,7 +130,9 @@ function App() {
                                 <td>{booking.Building}</td>
                                 <td>{booking.FacilityName}</td>
                                 <td>
-                                    <button className="delete-btn" onClick={() => deleteBooking(booking._id)}>Delete</button>
+                                    <button className="delete-btn" onClick={() => deleteBooking(booking._id)}>
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -138,4 +143,4 @@ function App() {
     );
 }
 
-export default App;
+export default BookingData;

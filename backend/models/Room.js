@@ -19,7 +19,7 @@ const roomSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-});
+}, { collection: 'rooms' });
 
 // Create the Room model using the schema
-module.exports = mongoose.model('Room', roomSchema, 'occupancy.rooms');
+module.exports = mongoose.model('Room', roomSchema);
