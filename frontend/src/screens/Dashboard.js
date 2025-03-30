@@ -4,6 +4,7 @@ import RoomTable from "../components/RoomTable";
 import RoomStats from "./RoomStats";
 import BookedUtilized from "./BookedUtilized";
 import PieChart from "../components/PieChart";
+import LineChart from "../components/LineChart";
 
 const Dashboard = () => {
   const [rooms, setRooms] = useState([]);
@@ -79,6 +80,10 @@ const Dashboard = () => {
       </div>
       <div className="mt-8" style={{ width: "500px", height: "500px", margin: "0 auto" }}>
         <PieChart data={pieChartData} />
+      </div>
+      <div className="mt-8" style={{ height: "50px" }}></div>
+      <div className="mt-8" style={{ width: "500px", height: "500px", margin: "0 auto" }}>
+        <LineChart occupancyData={rooms} roomName="SOE/SCIS2 Seminar Room 3-1" />
       </div>
     </div>
   );
