@@ -32,7 +32,9 @@ StatCard.propTypes = {
 };
 
 const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
-  const DAILY_HOURS = 14; 
+  console.log(bookings);
+  console.log(hourlyData);
+  const DAILY_HOURS = 14;
   const WEEKLY_HOURS = DAILY_HOURS * 7;
 
   const hourlyStatsByWeek = hourlyData
@@ -42,12 +44,14 @@ const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
         const date = new Date(record?.Time);
         const weekKey = `${date.getFullYear()}-W${Math.ceil(
           ((date - new Date(date.getFullYear(), 0, 1)) / 86400000 + 1) / 7
-        ).toString().padStart(2, "0")}`;
-        
+        )
+          .toString()
+          .padStart(2, "0")}`;
+
         if (!weeks[weekKey]) {
           weeks[weekKey] = { utilized: 0, totalHours: 0 };
         }
-        
+
         const hour = date.getHours();
         if (hour >= 8 && hour < 22) {
           weeks[weekKey].totalHours++;
@@ -60,18 +64,22 @@ const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
     }, {});
 
   const bookingStatsByWeek = bookings
-    .filter((b) => b?.FacilityName === roomName && b?.BookingStatus === "Confirmed")
+    .filter(
+      (b) => b?.FacilityName === roomName && b?.BookingStatus === "Confirmed"
+    )
     .reduce((weeks, booking) => {
       try {
         const date = new Date(booking.BookingStartTime);
         const weekKey = `${date.getFullYear()}-W${Math.ceil(
           ((date - new Date(date.getFullYear(), 0, 1)) / 86400000 + 1) / 7
-        ).toString().padStart(2, "0")}`;
-        
+        )
+          .toString()
+          .padStart(2, "0")}`;
+
         if (!weeks[weekKey]) {
           weeks[weekKey] = { bookedHours: 0 };
         }
-        
+
         const start = new Date(booking.BookingStartTime);
         const end = new Date(booking.BookingEndTime);
         weeks[weekKey].bookedHours += (end - start) / (1000 * 60 * 60);
@@ -84,28 +92,34 @@ const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
   const allWeekKeys = [
     ...new Set([
       ...Object.keys(hourlyStatsByWeek),
-      ...Object.keys(bookingStatsByWeek)
-    ])
+      ...Object.keys(bookingStatsByWeek),
+    ]),
   ];
 
   const weeklyAverages = allWeekKeys.map((weekKey) => {
     const hourly = hourlyStatsByWeek[weekKey] || { utilized: 0, totalHours: 0 };
     const booking = bookingStatsByWeek[weekKey] || { bookedHours: 0 };
-    
+
     return {
       weekKey,
       hourlyUtilized: hourly.utilized,
       hourlyNonUtilized: hourly.totalHours - hourly.utilized,
       bookedHours: booking.bookedHours,
-      unbookedHours: WEEKLY_HOURS - booking.bookedHours
+      unbookedHours: WEEKLY_HOURS - booking.bookedHours,
     };
   });
 
   const totalWeeks = weeklyAverages.length;
-  const totalHourlyUtilized = weeklyAverages.reduce((sum, week) => sum + week.hourlyUtilized, 0);
+  const totalHourlyUtilized = weeklyAverages.reduce(
+    (sum, week) => sum + week.hourlyUtilized,
+    0
+  );
   const avgWeeklyHourlyUtilized = totalHourlyUtilized / totalWeeks;
   const avgDailyHourlyUtilized = totalHourlyUtilized / (totalWeeks * 7);
-  const totalBookedHours = weeklyAverages.reduce((sum, week) => sum + week.bookedHours, 0);
+  const totalBookedHours = weeklyAverages.reduce(
+    (sum, week) => sum + week.bookedHours,
+    0
+  );
   const avgWeeklyBooked = totalBookedHours / totalWeeks;
   const avgDailyBooked = totalBookedHours / (totalWeeks * 7);
 
@@ -113,7 +127,7 @@ const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
     <div className="max-w-6xl mx-auto p-6">
       <h2 className="text-2xl font-bold text-center mb-6">Room Utilization</h2>
       <h3 className="text-xl font-semibold mb-4">{roomName} Utilization</h3>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
         <StatCard
           title="Avg Daily Usage"
@@ -146,7 +160,7 @@ const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
 RoomStats.propTypes = {
   bookings: PropTypes.array,
   hourlyData: PropTypes.array,
-  roomName: PropTypes.string
+  roomName: PropTypes.string,
 };
 
 export default RoomStats;

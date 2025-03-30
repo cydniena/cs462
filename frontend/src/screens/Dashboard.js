@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RoomTable from "../components/RoomTable";
 import RoomStats from "./RoomStats";
+import BookedUtilized from "./BookedUtilized";
 
 const Dashboard = () => {
   const [rooms, setRooms] = useState([]);
@@ -39,6 +40,9 @@ const Dashboard = () => {
       </div>
       <div className="mt-8">
         <RoomStats hourlyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1" />
+      </div>
+      <div className="mt-8">
+        <BookedUtilized occupancyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1" />
       </div>
     </div>
   );
