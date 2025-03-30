@@ -1,12 +1,12 @@
 import React from "react";
 import { Pie } from "react-chartjs-2";
 import {
-    Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
-  } from "chart.js";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const PieChart = ({ data }) => {
@@ -28,8 +28,8 @@ const PieChart = ({ data }) => {
     ],
   };
 
-// Options for the pie chart
-const chartOptions = {
+  // Options for the pie chart
+  const chartOptions = {
     responsive: true,
     plugins: {
       legend: {
@@ -44,18 +44,6 @@ const chartOptions = {
             const percentage = ((currentValue / total) * 100).toFixed(2);
             return `${tooltipItem.label}: ${percentage}%`;
           },
-        },
-      },
-      datalabels: {
-        color: "#fff", // Text color
-        formatter: (value, context) => {
-          const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
-          const percentage = ((value / total) * 100).toFixed(2);
-          return `${percentage}%`; // Display percentage
-        },
-        font: {
-          weight: "bold",
-          size: 14,
         },
       },
     },
