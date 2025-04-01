@@ -45,32 +45,31 @@ const RoomUtilizationDashboard = () => {
 
   // Helper function to extract building and floor from FacilityName
   const getBuildingAndFloor = (facilityName) => {
-    if (!facilityName) return { 
-      building: 'Unknown', 
-      shortBuilding: 'Unknown',
-      floor: 'Unknown' 
-    };
+    if (!facilityName) return { building: 'Unknown', floor: 'Unknown' };
     
-    let building, shortBuilding, floor;
+    let building, floor;
     
+    // Determine building
     if (facilityName.includes('SCIS1')) {
       building = 'School of Computing & Information Systems 1';
-      shortBuilding = 'SCIS1';
     } else if (facilityName.includes('SOE/SCIS2')) {
       building = 'School of Economics/School of Computing & Information Systems 2';
-      shortBuilding = 'SOE/SCIS2';
     } else {
       building = 'Unknown Building';
-      shortBuilding = 'Unknown';
     }
     
+    // Determine floor level from pattern like "3-1" or "4-2"
     const levelMatch = facilityName.match(/(\d+)-\d+$/);
-    floor = levelMatch && levelMatch[1] ? `Level ${levelMatch[1]}` : 'Unknown Floor';
+    if (levelMatch && levelMatch[1]) {
+      floor = `Level ${levelMatch[1]}`;
+    } else {
+      floor = 'Unknown Floor';
+    }
     
-    return { building, shortBuilding, floor };
+    return { building, floor };
   };
 
-  // Recalculate when filters or data change
+  // Calculate all data when filters or data change
   useEffect(() => {
     if (bookings.length > 0 && rooms.length > 0) {
       calculateUtilization();
@@ -78,6 +77,7 @@ const RoomUtilizationDashboard = () => {
     }
   }, [bookings, rooms, timeFilter, selectedDate, selectedHour]);
 
+  // Function to check if a room is booked at a specific time
   const isRoomBooked = (facilityName, time) => {
     const roomBookings = bookings.filter(booking => 
       booking.FacilityName === facilityName && 
@@ -98,17 +98,18 @@ const RoomUtilizationDashboard = () => {
     return 'unbooked';
   };
 
+  // Calculate utilization percentages
   const calculateUtilization = () => {
     const buildingFloorGroups = {};
     
+    // First process all rooms to create complete building/floor groups
     rooms.forEach(room => {
-      const { building, shortBuilding, floor } = getBuildingAndFloor(room.FacilityName);
+      const { building, floor } = getBuildingAndFloor(room.FacilityName);
       const key = `${building}|${floor}`;
       
       if (!buildingFloorGroups[key]) {
         buildingFloorGroups[key] = {
           building,
-          shortBuilding,
           floor,
           rooms: new Set(),
           unbookedUtilizedRooms: [],
@@ -121,21 +122,17 @@ const RoomUtilizationDashboard = () => {
       }
     });
 
+    // Then process bookings to ensure we have all possible rooms
     bookings.forEach(booking => {
-      const { building, shortBuilding, floor } = booking.FacilityName 
+      const { building, floor } = booking.FacilityName 
         ? getBuildingAndFloor(booking.FacilityName)
-        : { 
-            building: booking.Building || 'Unknown', 
-            shortBuilding: 'Unknown',
-            floor: booking.Floor || 'Unknown' 
-          };
+        : { building: booking.Building || 'Unknown', floor: booking.Floor || 'Unknown' };
       
       const key = `${building}|${floor}`;
       
       if (!buildingFloorGroups[key]) {
         buildingFloorGroups[key] = {
           building,
-          shortBuilding,
           floor,
           rooms: new Set(),
           unbookedUtilizedRooms: [],
@@ -164,7 +161,7 @@ const RoomUtilizationDashboard = () => {
         roomNames.forEach(roomName => {
           const roomData = rooms.find(room => 
             room.FacilityName === roomName && 
-            new Date(room.Time).toISOString().slice(0, 16) === targetTime.toISOString().slice(0, 16)
+            new Date(room.Time).getTime() === targetTime.getTime()
           );
           
           if (roomData) {
@@ -292,7 +289,6 @@ const RoomUtilizationDashboard = () => {
         
         results.push({
           building: group.building,
-          shortBuilding: group.shortBuilding,
           floor: group.floor,
           totalRooms,
           unbookedUtilizedCount,
@@ -305,6 +301,7 @@ const RoomUtilizationDashboard = () => {
       }
     });
 
+    // Sort results by building and floor for better organization
     const sortedResults = results.sort((a, b) => {
       if (a.building < b.building) return -1;
       if (a.building > b.building) return 1;
@@ -319,17 +316,17 @@ const RoomUtilizationDashboard = () => {
   const calculateOpportunities = () => {
     const buildingFloorGroups = {};
     
+    // First process all rooms to create complete building/floor groups
     rooms.forEach(room => {
-      const { building, shortBuilding, floor } = getBuildingAndFloor(room.FacilityName);
+      const { building, floor } = getBuildingAndFloor(room.FacilityName);
       const key = `${building}|${floor}`;
       
       if (!buildingFloorGroups[key]) {
         buildingFloorGroups[key] = {
           building,
-          shortBuilding,
           floor,
           rooms: new Set(),
-          opportunityRooms: []
+          opportunityRooms: [] // Track room details
         };
       }
       
@@ -338,21 +335,17 @@ const RoomUtilizationDashboard = () => {
       }
     });
   
+    // Then process bookings to ensure we have all possible rooms
     bookings.forEach(booking => {
-      const { building, shortBuilding, floor } = booking.FacilityName 
+      const { building, floor } = booking.FacilityName 
         ? getBuildingAndFloor(booking.FacilityName)
-        : { 
-            building: booking.Building || 'Unknown', 
-            shortBuilding: 'Unknown',
-            floor: booking.Floor || 'Unknown' 
-          };
+        : { building: booking.Building || 'Unknown', floor: booking.Floor || 'Unknown' };
       
       const key = `${building}|${floor}`;
       
       if (!buildingFloorGroups[key]) {
         buildingFloorGroups[key] = {
           building,
-          shortBuilding,
           floor,
           rooms: new Set(),
           opportunityRooms: []
@@ -378,7 +371,7 @@ const RoomUtilizationDashboard = () => {
         roomNames.forEach(roomName => {
           const roomData = rooms.find(room => 
             room.FacilityName === roomName && 
-            new Date(room.Time).toISOString().slice(0, 16) === targetTime.toISOString().slice(0, 16)
+            new Date(room.Time).getTime() === targetTime.getTime()
           );
           
           if (roomData) {
@@ -463,16 +456,16 @@ const RoomUtilizationDashboard = () => {
         const percentage = (opportunityCount / totalRooms) * 100;
         results.push({
           building: group.building,
-          shortBuilding: group.shortBuilding,
           floor: group.floor,
           totalRooms,
           opportunityCount,
           opportunityPercentage: percentage.toFixed(2),
-          opportunityRoomDetails
+          opportunityRoomDetails // Add room details
         });
       }
     });
   
+    // Sort results by building and floor for better organization
     const sortedResults = results.sort((a, b) => {
       if (a.building < b.building) return -1;
       if (a.building > b.building) return 1;
@@ -487,29 +480,30 @@ const RoomUtilizationDashboard = () => {
   if (loading) return <div>Loading data...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  // Merge the data for the comprehensive table
   const mergedTableData = utilizationData.map(utilItem => {
     const oppItem = opportunityData.find(item => 
       item.building === utilItem.building && item.floor === utilItem.floor
-    ) || {};
+    );
     
     return {
       ...utilItem,
-      opportunityCount: oppItem.opportunityCount || 0,
-      opportunityPercentage: oppItem.opportunityPercentage || '0.00',
-      opportunityRoomDetails: oppItem.opportunityRoomDetails || []
+      opportunityRooms: oppItem ? oppItem.opportunityRooms : 0,
+      opportunityPercentage: oppItem ? oppItem.percentage : '0.00'
     };
   });
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h2>Room Utilization Dashboard</h2>
-      
+    
       <div style={{ 
         marginBottom: '20px', 
         display: 'flex', 
         gap: '20px', 
         alignItems: 'center', 
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        flexDirection: 'row' 
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <label htmlFor="timeFilter">Time Filter:</label>
@@ -560,7 +554,12 @@ const RoomUtilizationDashboard = () => {
               <h3>Not Booked but Utilized Rooms</h3>
               <Bar
                 data={{
-                  labels: utilizationData.map(item => `${item.shortBuilding} - ${item.floor}`),
+                  labels: opportunityData.map(item => {
+                    const shortName = item.building === "School of Computing & Information Systems 1" 
+                      ? "SCIS1" 
+                      : "SOE/SCIS2";
+                    return `${shortName} - ${item.floor}`;
+                  }),
                   datasets: [
                     {
                       label: '% Not Booked but Utilized',
@@ -593,21 +592,19 @@ const RoomUtilizationDashboard = () => {
                   plugins: {
                     tooltip: {
                       callbacks: {
-                        title: function(context) {
-                          const data = utilizationData[context.dataIndex];
-                          return `${data.building} - ${data.floor}`;
-                        },
                         afterLabel: function(context) {
                           const data = utilizationData[context.dataIndex];
-                          if (!data || !data.unbookedUtilizedCount) {
+                          if (data.unbookedUtilizedCount === 0) {
                             return 'All rooms are properly booked or unutilized';
                           }
                           
-                          const roomDetails = data.unbookedUtilizedRooms?.map(room => {
-                            return timeFilter === 'hour' 
-                              ? `• ${room.name}: ${room.count}/${room.capacity} people`
-                              : `• ${room.name} (usage varies)`;
-                          }) || [];
+                          const roomDetails = data.unbookedUtilizedRooms.map(room => {
+                            if (timeFilter === 'hour') {
+                              return `• ${room.name}: ${room.count}/${room.capacity} people`;
+                            } else {
+                              return `• ${room.name} (usage varies)`;
+                            }
+                          });
                           
                           return [
                             `Unbooked but Utilized Rooms (${data.unbookedUtilizedCount}/${data.totalRooms}):`,
@@ -625,7 +622,12 @@ const RoomUtilizationDashboard = () => {
               <h3>Booked but Unutilized Rooms</h3>
               <Bar
                 data={{
-                  labels: utilizationData.map(item => `${item.shortBuilding} - ${item.floor}`),
+                  labels: opportunityData.map(item => {
+                    const shortName = item.building === "School of Computing & Information Systems 1" 
+                      ? "SCIS1" 
+                      : "SOE/SCIS2";
+                    return `${shortName} - ${item.floor}`;
+                  }),
                   datasets: [
                     {
                       label: '% Booked but Unutilized',
@@ -658,19 +660,15 @@ const RoomUtilizationDashboard = () => {
                   plugins: {
                     tooltip: {
                       callbacks: {
-                        title: function(context) {
-                          const data = utilizationData[context.dataIndex];
-                          return `${data.building} - ${data.floor}`;
-                        },
                         afterLabel: function(context) {
                           const data = utilizationData[context.dataIndex];
-                          if (!data || !data.bookedUnutilizedCount) {
+                          if (data.bookedUnutilizedCount === 0) {
                             return 'No booked but unutilized rooms';
                           }
                           
-                          const roomDetails = data.bookedUnutilizedRooms?.map(room => {
+                          const roomDetails = data.bookedUnutilizedRooms.map(room => {
                             return `• ${room.name} (0/${room.capacity} people)`;
-                          }) || [];
+                          });
                           
                           return [
                             `Booked but Unutilized Rooms (${data.bookedUnutilizedCount}/${data.totalRooms}):`,
@@ -684,71 +682,72 @@ const RoomUtilizationDashboard = () => {
               />
             </div>
 
-            <div style={{ height: '400px' }}>
-              <h3>Not Booked and Unutilized Rooms</h3>
-              <Bar
-                data={{
-                  labels: opportunityData.map(item => `${item.shortBuilding} - ${item.floor}`),
-                  datasets: [
-                    {
-                      label: '% Not Booked and Unutilized',
-                      data: opportunityData.map(item => parseFloat(item.opportunityPercentage)),
-                      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                      borderColor: 'rgba(75, 192, 192, 1)',
-                      borderWidth: 1
-                    }
-                  ]
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100,
-                      title: {
-                        display: true,
-                        text: 'Percentage (%)'
-                      }
-                    },
-                    x: {
-                      title: {
-                        display: true,
-                        text: 'Building and Floor'
-                      }
+          <div style={{ height: '400px' }}>
+            <h3>Not Booked and Unutilized Rooms</h3>
+            <Bar
+              data={{
+                labels: opportunityData.map(item => {
+                  const shortName = item.building === "School of Computing & Information Systems 1" 
+                    ? "SCIS1" 
+                    : "SOE/SCIS2";
+                  return `${shortName} - ${item.floor}`;
+                }),
+                datasets: [
+                  {
+                    label: '% Not Booked and Unutilized',
+                    data: opportunityData.map(item => parseFloat(item.opportunityPercentage)),
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                  }
+                ]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                      display: true,
+                      text: 'Percentage (%)'
                     }
                   },
-                  plugins: {
-                    tooltip: {
-                      callbacks: {
-                        title: function(context) {
-                          const data = opportunityData[context.dataIndex];
-                          return data ? `${data.building} - ${data.floor}` : 'Building - Floor';
-                        },
-                        afterLabel: function(context) {
-                          const data = opportunityData[context.dataIndex];
-                          if (!data || !data.opportunityCount) {
-                            return 'No unbooked and unutilized rooms';
-                          }
-                          
-                          const roomDetails = data.opportunityRoomDetails?.map(room => {
-                            return `• ${room.name} (0/${room.capacity} people)`;
-                          }) || [];
-                          
-                          return [
-                            `Unbooked and Unutilized Rooms (${data.opportunityCount}/${data.totalRooms}):`,
-                            ...roomDetails
-                          ].join('\n');
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Building and Floor'
+                    }
+                  }
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      afterLabel: function(context) {
+                        const data = opportunityData[context.dataIndex];
+                        if (data.opportunityCount === 0) {
+                          return 'No unbooked and unutilized rooms';
                         }
+                        
+                        const roomDetails = data.opportunityRoomDetails.map(room => {
+                          return `• ${room.name} (0/${room.capacity} people)`;
+                        });
+                        
+                        return [
+                          `Unbooked and Unutilized Rooms (${data.opportunityCount}/${data.totalRooms}):`,
+                          ...roomDetails
+                        ].join('\n');
                       }
                     }
                   }
-                }}
-              />
-            </div>
+                }
+              }}
+            />
+          </div>
           </div>
 
-          <div style={{ overflowX: 'auto', marginTop: '50px' }}>
+          <div style={{ overflowX: 'auto', marginTop: '80px'}}>
             <h3>Comprehensive Room Utilization Data</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
               <thead>
@@ -774,7 +773,7 @@ const RoomUtilizationDashboard = () => {
                     <td style={{ padding: '12px', textAlign: 'right' }}>{data.unbookedUtilizedPercentage}%</td>
                     <td style={{ padding: '12px', textAlign: 'right' }}>{data.bookedUnutilizedCount}</td>
                     <td style={{ padding: '12px', textAlign: 'right' }}>{data.bookedUnutilizedPercentage}%</td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>{data.opportunityCount}</td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>{data.opportunityRooms}</td>
                     <td style={{ padding: '12px', textAlign: 'right' }}>{data.opportunityPercentage}%</td>
                   </tr>
                 ))}
