@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import HeatMap from "../components/HeatMap";
+import HeatMap from "../components/HeatMap2";
 
 const RoomWeekly = () => {
   const [rooms, setRooms] = useState([]);
@@ -28,19 +28,20 @@ const RoomWeekly = () => {
     const endDatePre = new Date();
     endDatePre.setDate(endDatePre.getDate() + 6);
     const endDate = endDatePre.toISOString();
-    
+
     if (!selectedRoom) return;
     try {
       const response = await axios.get("http://localhost:5005/api/rooms");
       const roomData = response.data.filter((room) => room.FacilityName === selectedRoom  &&
-      room.Time >= startDate && 
-      room.Time <= endDate);
+      room.Time >= "2025-01-17T00:00:00Z" && 
+      room.Time <= "2025-01-22T00:00:00Z");
       const formattedData = roomData
         .map((room) => {
           if (!room.Time) return null;
           return {
             Time: room.Time,
             Count: room.Count,
+            Capacity: room.Capacity,
           };
         })
         .filter(Boolean);
