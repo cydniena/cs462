@@ -1,7 +1,7 @@
 /* App.css */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    background-color: white;
     margin: 0;
     padding: 0;
   }
@@ -41,24 +41,6 @@ body {
     box-sizing: border-box;
   }
   
-  button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  .bookings-list {
-    margin-top: 30px;
-  }
-  
   table {
     width: 100%;
     border-collapse: collapse;
@@ -73,17 +55,4 @@ body {
   
   th {
     background-color: #f2f2f2;
-  }
-  
-  button.delete-btn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button.delete-btn:hover {
-    background-color: #c82333;
   }

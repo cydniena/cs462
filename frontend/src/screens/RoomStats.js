@@ -32,8 +32,6 @@ StatCard.propTypes = {
 };
 
 const RoomStats = ({ bookings = [], hourlyData = [], roomName = "" }) => {
-  console.log(bookings);
-  console.log(hourlyData);
   const DAILY_HOURS = 14;
   const WEEKLY_HOURS = DAILY_HOURS * 7;
 

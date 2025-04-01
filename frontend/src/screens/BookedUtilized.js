@@ -144,8 +144,8 @@ const BookedUtilizedChart = ({ bookings, occupancyData, roomName }) => {
   // Calculate overall weekly average across all weeks with data
   const overallWeeklyAverage = useMemo(() => {
     let totalUtilizedPercentage = 0;
-    let totalWeeks = allWeeksWithData.length;
-
+    let totalDays = 0;
+  
     allWeeksWithData.forEach((week) => {
       eachDayOfInterval({
         start: startOfWeek(week),
@@ -154,11 +154,12 @@ const BookedUtilizedChart = ({ bookings, occupancyData, roomName }) => {
         const dailyPercentage = calculateDailyPercentage(day);
         if (dailyPercentage !== null) {
           totalUtilizedPercentage += dailyPercentage;
+          totalDays++;
         }
       });
     });
-
-    return totalWeeks > 0 ? totalUtilizedPercentage / totalWeeks : null;
+  
+    return totalDays > 0 ? totalUtilizedPercentage / totalDays : null;
   }, [allWeeksWithData, bookings, occupancyData, roomName]);
 
   // Current day/week percentage
@@ -198,7 +199,7 @@ const BookedUtilizedChart = ({ bookings, occupancyData, roomName }) => {
 
       {/* Averages Section */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold">Overall Averages</h2>
+        <h2 className="text-lg font-bold">Overall Booked & Utilized Averages</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Daily Average Card */}
@@ -236,6 +237,7 @@ const BookedUtilizedChart = ({ bookings, occupancyData, roomName }) => {
           </div>
         </div>
       </div>
+      {/* style={{display: "none"}} */}
 
       {/* Current Week Daily Averages (when in week view) */}
       {filterType === "week" && (

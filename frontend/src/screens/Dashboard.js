@@ -3,6 +3,8 @@ import axios from "axios";
 import RoomTable from "../components/RoomTable";
 import RoomStats from "./RoomStats";
 import BookedUtilized from "./BookedUtilized";
+import FloorHeatMap from "./FloorHeatMap";
+import AvgBookingUtilisation from "./AvgBookingUtilisation";
 import PieChart from "../components/PieChart";
 import LineChart from "../components/LineChart";
 
@@ -72,11 +74,17 @@ const Dashboard = () => {
       <div className="mb-8" style={{ display: "none" }}>
         <RoomTable data={rooms} />
       </div>
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <RoomStats hourlyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1" />
       </div>
       <div className="mt-8">
         <BookedUtilized occupancyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1" />
+      </div>
+      <div className="mt-8">
+        <FloorHeatMap occupancyData={rooms}/>
+      </div> */}
+      <div className="mt-8">
+        <AvgBookingUtilisation occupancyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1"/>
       </div>
       <div className="mt-8" style={{ width: "500px", height: "500px", margin: "0 auto" }}>
         <PieChart data={pieChartData} />
