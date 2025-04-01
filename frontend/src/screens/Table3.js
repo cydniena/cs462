@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import OverallStatusPie from "../components/OverallStatusPie";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -14,6 +15,7 @@ const RoomUtilizationDashboard = () => {
   const [selectedHour, setSelectedHour] = useState(9);
   const [utilizationData, setUtilizationData] = useState([]);
   const [opportunityData, setOpportunityData] = useState([]);
+  const [pieChartData, setPieChartData] = useState([0, 0, 0, 0]);
 
   // Fetch data from API
   useEffect(() => {
@@ -97,6 +99,89 @@ const RoomUtilizationDashboard = () => {
     
     return 'unbooked';
   };
+
+  // Calculate percentages for the pie chart
+  useEffect(() => {
+    if (bookings.length > 0 && rooms.length > 0) {
+      let bookedAndUtilized = 0;
+      let bookedAndUnutilized = 0;
+      let notBookedAndUtilized = 0;
+      let notBookedAndUnutilized = 0;
+
+      const targetStart = new Date(selectedDate);
+      const targetEnd = new Date(selectedDate);
+
+      if (timeFilter === 'hour') {
+        targetStart.setHours(selectedHour, 0, 0, 0);
+        targetEnd.setHours(selectedHour + 1, 0, 0, 0);
+      } else if (timeFilter === 'day') {
+        targetStart.setHours(0, 0, 0, 0);
+        targetEnd.setHours(23, 59, 59, 999);
+      }
+
+      bookings.forEach((booking) => {
+        const bookingStart = new Date(booking.BookingStartTime);
+        const bookingEnd = new Date(booking.BookingEndTime);
+        if (
+          booking.BookingStatus === 'Confirmed' &&
+          bookingEnd > targetStart &&
+          bookingStart < targetEnd
+        ) {
+          const hasUtilized = rooms.some((room) => {
+            const roomTime = new Date(room.Time);
+            return (
+              room.FacilityName === booking.FacilityName &&
+              roomTime >= targetStart &&
+              roomTime < targetEnd &&
+              room.Count > 0
+            );
+          });
+
+          if (hasUtilized) {
+            bookedAndUtilized++;
+          } else {
+            bookedAndUnutilized++;
+          }
+        }
+      });
+
+      rooms.forEach((room) => {
+        const roomTime = new Date(room.Time);
+        if (roomTime >= targetStart && roomTime < targetEnd) {
+          const isBooked = bookings.some((booking) => {
+            const bookingStart = new Date(booking.BookingStartTime);
+            const bookingEnd = new Date(booking.BookingEndTime);
+            return (
+              booking.FacilityName === room.FacilityName &&
+              booking.BookingStatus === 'Confirmed' &&
+              roomTime >= bookingStart &&
+              roomTime < bookingEnd
+            );
+          });
+
+          if (!isBooked && room.Count > 0) {
+            notBookedAndUtilized++;
+          } else if (!isBooked && room.Count === 0) {
+            notBookedAndUnutilized++;
+          }
+        }
+      });
+
+      const totalBooked = bookedAndUtilized + bookedAndUnutilized;
+      const totalNotBooked = notBookedAndUtilized + notBookedAndUnutilized;
+
+      const percentages = [
+        totalBooked > 0 ? (bookedAndUtilized / totalBooked) * 100 : 0,
+        totalBooked > 0 ? (bookedAndUnutilized / totalBooked) * 100 : 0,
+        totalNotBooked > 0 ? (notBookedAndUtilized / totalNotBooked) * 100 : 0,
+        totalNotBooked > 0 ? (notBookedAndUnutilized / totalNotBooked) * 100 : 0,
+      ];
+      setPieChartData(percentages);
+    }
+  }, [bookings, rooms, timeFilter, selectedDate, selectedHour]);
+
+  if (loading) return <div>Loading data...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   // Calculate utilization percentages
   const calculateUtilization = () => {
@@ -738,7 +823,7 @@ const RoomUtilizationDashboard = () => {
                           `Unbooked and Unutilized Rooms (${data.opportunityCount}/${data.totalRooms}):`,
                           ...roomDetails
                         ].join('\n');
-                      }
+                      } 
                     }
                   }
                 }
@@ -779,6 +864,13 @@ const RoomUtilizationDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Overall Status Pie Chart */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '30px' }}>
+            <div style={{ width: '40%', height: 'auto' }}>
+              <OverallStatusPie data={pieChartData} />
+            </div>
           </div>
         </>
       )}
