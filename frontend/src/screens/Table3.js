@@ -578,6 +578,27 @@ const RoomUtilizationDashboard = () => {
     };
   });
 
+  // Group pie chart data by building and floor
+  const groupedPieChartData = {};
+  utilizationData.forEach((data) => {
+    const key = `${data.building}|${data.floor}`;
+    groupedPieChartData[key] = [
+      isNaN(parseFloat(data.unbookedUtilizedPercentage)) ? 0 : parseFloat(data.unbookedUtilizedPercentage),
+      isNaN(parseFloat(data.bookedUnutilizedPercentage)) ? 0 : parseFloat(data.bookedUnutilizedPercentage),
+      isNaN(parseFloat(data.opportunityPercentage)) ? 0 : parseFloat(data.opportunityPercentage),
+      100 - (
+        (isNaN(parseFloat(data.unbookedUtilizedPercentage)) ? 0 : parseFloat(data.unbookedUtilizedPercentage)) +
+        (isNaN(parseFloat(data.bookedUnutilizedPercentage)) ? 0 : parseFloat(data.bookedUnutilizedPercentage)) +
+        (isNaN(parseFloat(data.opportunityPercentage)) ? 0 : parseFloat(data.opportunityPercentage))
+      )
+    ];
+  });
+
+  // Ensure "School of Economics/School of Computing & Information Systems 2 - Level 4" is included
+  if (!groupedPieChartData["School of Economics/School of Computing & Information Systems 2|Level 4"]) {
+    groupedPieChartData["School of Economics/School of Computing & Information Systems 2|Level 4"] = [0, 0, 0, 100];
+  }
+
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h2>Room Utilization Dashboard</h2>
@@ -866,11 +887,18 @@ const RoomUtilizationDashboard = () => {
             </table>
           </div>
 
-          {/* Overall Status Pie Chart */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '30px' }}>
-            <div style={{ width: '40%', height: 'auto' }}>
-              <OverallStatusPie data={pieChartData} />
-            </div>
+          {/* Overall Status Pie Charts for Each Floor */}
+          <h2 className="text-center text-lg font-bold mb-4">Rooms Status Overview</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginBottom: '30px' }}>
+            {Object.entries(groupedPieChartData).map(([key, data], index) => {
+              const [building, floor] = key.split('|');
+              return (
+                <div key={index} style={{ width: '250px', height: '250px', textAlign: 'center' }}>
+                  <h4>{building} - {floor}</h4>
+                  <OverallStatusPie data={data} />
+                </div>
+              );
+            })}
           </div>
         </>
       )}

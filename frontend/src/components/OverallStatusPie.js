@@ -51,7 +51,6 @@ const OverallStatusPieChart = ({ data }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-center text-lg font-bold mb-4">Rooms Status Overview</h2>
       <Pie data={chartData} options={chartOptions} />
     </div>
   );
