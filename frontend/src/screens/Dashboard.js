@@ -74,7 +74,7 @@ const Dashboard = () => {
       <div className="mb-8" style={{ display: "none" }}>
         <RoomTable data={rooms} />
       </div>
-      {/* <div className="mt-8">
+      <div className="mt-8">
         <RoomStats hourlyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1" />
       </div>
       <div className="mt-8">
@@ -82,7 +82,7 @@ const Dashboard = () => {
       </div>
       <div className="mt-8">
         <FloorHeatMap occupancyData={rooms}/>
-      </div> */}
+      </div>
       <div className="mt-8">
         <AvgBookingUtilisation occupancyData={rooms} bookings={booking} roomName="SCIS1 Classroom 3-1"/>
       </div>
