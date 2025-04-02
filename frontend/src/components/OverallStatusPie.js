@@ -9,7 +9,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChart = ({ data }) => {
+const OverallStatusPieChart = ({ data }) => {
   // Data for the pie chart
   const chartData = {
     labels: [
@@ -51,10 +51,10 @@ const PieChart = ({ data }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-center text-lg font-bold mb-4">Room Status Overview</h2>
+      <h2 className="text-center text-lg font-bold mb-4">Rooms Status Overview</h2>
       <Pie data={chartData} options={chartOptions} />
     </div>
   );
 };
 
-export default PieChart;
+export default OverallStatusPieChart;
