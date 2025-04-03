@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.8",
+    "chartjs-chart-matrix": "^3.0.0",
     "date-fns": "^4.1.0",
     "frontend": "file:",
     "react": "^18.3.1",
