@@ -7,9 +7,6 @@ const FloorHeatMap = ({
   selectedDate = "",
   selectedHour = "",
 }) => {
-  //const [filterType, setFilterType] = useState("day");
-  //const [selectedDate, setSelectedDate] = useState("2025-01-17");
-  //const [selectedHour, setSelectedHour] = useState("8"); // Default to 8 AM
 
   // Filtered data based on selected date, filter type, and selected hour
   const filteredData = useMemo(() => {
@@ -86,39 +83,6 @@ const FloorHeatMap = ({
   return (
     <div className="p-4">
       <h1>Heatmap for each floor</h1>
-      {/* <div className="flex space-x-4 mb-4 items-center">
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="border border-gray-300 rounded px-2 py-1"
-        >
-          <option value="day">Day</option>
-          <option value="week">Week</option>
-          <option value="hour">Hour</option>
-        </select>
-
-        <input
-          type="date"
-          value={format(new Date(selectedDate), "yyyy-MM-dd")}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="border border-gray-300 rounded px-2 py-1"
-        />
-
-        {filterType === "hour" && (
-          <select
-            value={selectedHour}
-            onChange={(e) => setSelectedHour(e.target.value)}
-            className="border border-gray-300 rounded px-2 py-1"
-          >
-            {Array.from({ length: 15 }, (_, i) => (
-              <option key={i} value={i + 8}>
-                {i + 8}:00
-              </option>
-            ))}
-          </select>
-        )}
-      </div> */}
-
       <div className="flex space-x-4 mb-4 items-center">
         <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>

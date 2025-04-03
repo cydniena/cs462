@@ -4,6 +4,8 @@ import RoomStats from "./Room/RoomStats";
 import BookedUtilized from "./Room/BookedUtilized";
 import FloorHeatMap from "./Floor/FloorHeatMap";
 import AvgBookingUtilisation from "./Room/AvgBookingUtilisation";
+import RoomWeekly from "./RoomWeekly";
+import PerRoomLine from "../components/PerRoomLine";
 
 const Dashboard = () => {
   const [rooms, setRooms] = useState([]);
@@ -143,10 +145,11 @@ const Dashboard = () => {
           selectedHour={selectedHour}
         />
       </div>
-      <h1>Floor Utilization</h1>
       <div className="mt-8">
-        <FloorHeatMap
+        <PerRoomLine
           occupancyData={rooms}
+          bookings={booking}
+          roomName="SCIS1 Classroom 3-1"
           timeRange={timeRange}
           selectedDate={selectedDate}
           selectedHour={selectedHour}

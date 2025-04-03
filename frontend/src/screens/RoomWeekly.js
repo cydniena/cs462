@@ -33,8 +33,8 @@ const RoomWeekly = () => {
     try {
       const response = await axios.get("http://localhost:5005/api/rooms");
       const roomData = response.data.filter((room) => room.FacilityName === selectedRoom  &&
-      room.Time >= "2025-01-17T00:00:00Z" && 
-      room.Time <= "2025-01-22T00:00:00Z");
+      room.Time >= "2025-01-16T00:00:00Z" && 
+      room.Time <= "2025-01-24T00:00:00Z");
       const formattedData = roomData
         .map((room) => {
           if (!room.Time) return null;
