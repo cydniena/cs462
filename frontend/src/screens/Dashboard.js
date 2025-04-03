@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import RoomTable from "../components/RoomTable";
 import RoomStats from "./Room/RoomStats";
-import BookedUtilized from "./BookedUtilized";
+import BookedUtilized from "./Room/BookedUtilized";
 import FloorHeatMap from "./FloorHeatMap";
-import AvgBookingUtilisation from "./AvgBookingUtilisation";
+import AvgBookingUtilisation from "./Room/AvgBookingUtilisation";
 
 const Dashboard = () => {
   const [rooms, setRooms] = useState([]);
@@ -135,14 +134,17 @@ const Dashboard = () => {
         />
       </div>
       <div className="mt-8">
-        <FloorHeatMap occupancyData={rooms} />
-      </div>
-      <div className="mt-8">
         <AvgBookingUtilisation
           occupancyData={rooms}
           bookings={booking}
           roomName="SCIS1 Classroom 3-1"
+          timeRange={timeRange}
+          selectedDate={selectedDate}
+          selectedHour={selectedHour}
         />
+      </div>
+      <div className="mt-8">
+        <FloorHeatMap occupancyData={rooms} />
       </div>
     </div>
   );
