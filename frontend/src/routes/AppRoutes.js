@@ -4,7 +4,7 @@ import Dashboard from '../screens/Dashboard';
 import RoomData from '../screens/RoomData';
 import BookingData from '../screens/BookingData';
 import BookingUtilized from '../screens/Room/BookedUtilized';
-import FloorHeatMap from '../screens/FloorHeatMap';
+import FloorHeatMap from '../screens/Floor/FloorHeatMap';
 import Table3 from '../screens/Table3';
 import FilterPage from '../screens/FilterPage';
 import RoomWeekly from '../screens/RoomWeekly';

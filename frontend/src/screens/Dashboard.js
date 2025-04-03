@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RoomStats from "./Room/RoomStats";
 import BookedUtilized from "./Room/BookedUtilized";
-import FloorHeatMap from "./FloorHeatMap";
+import FloorHeatMap from "./Floor/FloorHeatMap";
 import AvgBookingUtilisation from "./Room/AvgBookingUtilisation";
 
 const Dashboard = () => {
@@ -143,42 +143,17 @@ const Dashboard = () => {
           selectedHour={selectedHour}
         />
       </div>
+      <h1>Floor Utilization</h1>
       <div className="mt-8">
-        <FloorHeatMap occupancyData={rooms} />
+        <FloorHeatMap
+          occupancyData={rooms}
+          timeRange={timeRange}
+          selectedDate={selectedDate}
+          selectedHour={selectedHour}
+        />
       </div>
     </div>
   );
-  // <div className="p-4">
-  //   <h1 className="text-center text-2xl font-bold mb-6">Room Utilization</h1>
-  //   <div className="mb-8" style={{ display: "none" }}>
-  //     <RoomTable data={rooms} />
-  //   </div>
-  //   <div className="mt-8">
-  //     <RoomStats
-  //       hourlyData={rooms}
-  //       bookings={booking}
-  //       roomName="SCIS1 Classroom 3-1"
-  //     />
-  //   </div>
-  //   <div className="mt-8">
-  //     <BookedUtilized
-  //       occupancyData={rooms}
-  //       bookings={booking}
-  //       roomName="SCIS1 Classroom 3-1"
-  //     />
-  //   </div>
-  //   <div className="mt-8">
-  //     <FloorHeatMap occupancyData={rooms} />
-  //   </div>
-  //   <div className="mt-8">
-  //     <AvgBookingUtilisation
-  //       occupancyData={rooms}
-  //       bookings={booking}
-  //       roomName="SCIS1 Classroom 3-1"
-  //     />
-  //   </div>
-  // </div>
-  //);
 };
 
 export default Dashboard;
