@@ -54,7 +54,7 @@ const FloorHeatMap = ({ occupancyData = [] }) => {
           hourData[room] = entry && entry.Count > 0 ? 1 : 0; // Shaded if used
         }
 
-        console.log(hourData)
+        //console.log(hourData)
       });
       return hourData;
     });
