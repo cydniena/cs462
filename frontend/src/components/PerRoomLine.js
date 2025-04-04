@@ -27,8 +27,6 @@ const LineChart = ({ occupancyData, roomName, timeRange = "", selectedDate = "",
     return occupancyData.filter((data) => data.FacilityName === roomName);
   }, [occupancyData, roomName]);
 
-  console.log("Filtered Room Data:", roomData);
-
   // Filter data based on the selected time range
   const filteredData = useMemo(() => {
     if (!roomData.length) return [];

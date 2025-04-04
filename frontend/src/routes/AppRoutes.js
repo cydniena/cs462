@@ -6,7 +6,7 @@ import BookingData from '../screens/BookingData';
 import BookingUtilized from '../screens/Room/BookedUtilized';
 import FloorHeatMap from '../screens/Floor/FloorHeatMap';
 import FilterPage from '../screens/FilterPage';
-import RoomWeekly from '../screens/RoomWeekly';
+import RoomWeekly from '../screens/Room/RoomWeekly';
 import Table3 from '../screens/Table3';
 
 const AppRoutes = () => {

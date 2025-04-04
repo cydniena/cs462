@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import HeatMap from "../components/HeatMap2";
+import HeatMap from "../../components/HeatMap2";
 
 const RoomWeekly = ({
   bookings = [],
@@ -69,7 +69,6 @@ const RoomWeekly = ({
     );
 
     setFilteredData(filteredProcessedData);
-    console.log("Filtered Data: ", filteredData);
   }, [
     bookings,
     occupancyData,
