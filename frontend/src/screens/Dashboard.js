@@ -155,6 +155,16 @@ const Dashboard = () => {
           selectedHour={selectedHour}
         />
       </div>
+      <div className="mt-8">
+        <RoomWeekly
+          occupancyData={rooms}
+          bookings={booking}
+          roomName="SCIS1 Classroom 3-1"
+          timeRange={timeRange}
+          selectedDate={selectedDate}
+          selectedHour={selectedHour}
+        />
+      </div>
     </div>
   );
 };

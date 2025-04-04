@@ -1,92 +1,90 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import HeatMap from "../components/HeatMap2";
 
-const RoomWeekly = () => {
-  const [rooms, setRooms] = useState([]);
-  const [heatmapData, setHeatmapData] = useState([]);
-  const [allRooms, setAllRooms] = useState([]);
-  const [selectedRoom, setSelectedRoom] = useState("");
+const RoomWeekly = ({
+  bookings = [],
+  occupancyData = [],
+  roomName = "",
+  timeRange = "day",
+  selectedDate = "",
+  selectedHour = "",
+}) => {
+  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
-    const fetchAllRooms = async () => {
-      try {
-        const response = await axios.get("http://localhost:5005/api/rooms");
-        const uniqueRooms = [
-          ...new Map(response.data.map((room) => [room.FacilityName, room])).values(),
-        ];
-        setAllRooms(uniqueRooms);
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
-      }
-    };
-    fetchAllRooms();
-  }, []);
+    if (!roomName) return;
 
-  const generateHeatmapData = async (selectedRoom) => {
-    const startDate = new Date().toISOString()
-    const endDatePre = new Date();
-    endDatePre.setDate(endDatePre.getDate() + 6);
-    const endDate = endDatePre.toISOString();
+    // Filter occupancy data for the selected room
+    let roomOccupancy = occupancyData.filter(
+      (entry) => entry.FacilityName === roomName
+    );
 
-    if (!selectedRoom) return;
-    try {
-      const response = await axios.get("http://localhost:5005/api/rooms");
-      const roomData = response.data.filter((room) => room.FacilityName === selectedRoom  &&
-      room.Time >= "2025-01-16T00:00:00Z" && 
-      room.Time <= "2025-01-24T00:00:00Z");
-      const formattedData = roomData
-        .map((room) => {
-          if (!room.Time) return null;
-          return {
-            Time: room.Time,
-            Count: room.Count,
-            Capacity: room.Capacity,
-          };
-        })
-        .filter(Boolean);
-      setRooms(roomData);
-      setHeatmapData(formattedData);
-      console.log(formattedData);
-    } catch (error) {
-      console.error("Error fetching room data:", error);
+    // Apply time range filtering
+    if (timeRange === "day" && selectedDate) {
+      roomOccupancy = roomOccupancy.filter(
+        (entry) =>
+          new Date(entry.Time).toISOString().split("T")[0] === selectedDate
+      );
+    } else if (timeRange === "hour" && selectedDate && selectedHour !== "") {
+      roomOccupancy = roomOccupancy.filter((entry) => {
+        const entryDate = new Date(entry.Time);
+        return (
+          entryDate.toISOString().split("T")[0] === selectedDate &&
+          entryDate.getHours() === parseInt(selectedHour, 10)
+        );
+      });
     }
-  };
 
-  const handleRoomSelection = () => {
-    generateHeatmapData(selectedRoom);
-  };
+    // Process data to categorize booking status
+    const processedData = roomOccupancy.map((entry) => {
+      const { Time, Count, Capacity, FacilityName } = entry;
+      const entryDate = new Date(Time);
+
+      const booking = bookings.find(
+        (b) =>
+          b.FacilityName === FacilityName &&
+          new Date(b.BookingStartTime) <= entryDate &&
+          new Date(b.BookingEndTime) > entryDate
+      );
+
+      let category = "Unbooked and Unutilised";
+      if (booking) {
+        category =
+          Count === 0 ? "Booked and Unutilised" : "Booked and Utilised";
+      } else if (Count > 0) {
+        category = "Unbooked and Utilised";
+      }
+
+      return {
+        Time,
+        Count,
+        Capacity,
+        Category: category,
+      };
+    });
+
+    // Filter out entries with "Booked and Utilised" category
+    const filteredProcessedData = processedData.filter(
+      (entry) => entry.Category !== "Booked and Utilised"
+    );
+
+    setFilteredData(filteredProcessedData);
+    console.log("Filtered Data: ", filteredData);
+  }, [
+    bookings,
+    occupancyData,
+    roomName,
+    timeRange,
+    selectedDate,
+    selectedHour,
+  ]);
 
   return (
     <div className="p-4">
-      <h1 className="text-center text-2xl font-bold mb-6">Room Utilization</h1>
-
-      <div className="mb-4">
-        <select
-          value={selectedRoom}
-          onChange={(e) => setSelectedRoom(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">Select a room</option>
-          {allRooms.map((room) => (
-            <option key={room._id} value={room.FacilityName}>
-              {room.FacilityName}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={handleRoomSelection}
-          className="ml-4 p-2 bg-blue-500 text-white rounded"
-        >
-          Select Room
-        </button>
-      </div>
-
-      {heatmapData.length > 0 && (
-        <div className="mt-8" style={{ width: "700px", height: "500px", margin: "0 auto" }}>
-          <HeatMap data={heatmapData} />
-        </div>
-      )}
+      <h2 className="text-xl font-bold mb-4">
+        Room Utilization Heatmap: {roomName}
+      </h2>
+      <HeatMap data={filteredData} timeRange={timeRange} />
     </div>
   );
 };
