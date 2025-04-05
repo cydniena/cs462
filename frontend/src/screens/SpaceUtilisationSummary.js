@@ -179,8 +179,10 @@ const SpaceUtilisationSummary = () => {
             selectedBuilding={selectedBuilding} 
         />
       </div>
+      
     </div>
   );
 };
 
 export default SpaceUtilisationSummary;
+

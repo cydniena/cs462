@@ -162,4 +162,41 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
   }
+  .chart-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 20px;
+}
+
+.chart-item {
+  width: 50%;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    flex-direction: column;
+  }
   
+  .chart-item {
+    width: 100%;
+  }
+}
+
+.charts-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 2%; /* Optional gap between the charts */
+}
+
+.chart-box {
+  width: 48%; /* Each chart occupies 48% of the container's width */
+}
+
+.chart-section {
+  margin-top: 40px;
+}
