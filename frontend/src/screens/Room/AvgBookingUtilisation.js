@@ -8,7 +8,6 @@ const AvgBookingUtilisation = ({
   selectedDate = "",
   selectedHour = "",
 }) => {
-  // Convert selectedDate to Date object
   const selectedDateObj = new Date(selectedDate);
 
   const isSameDay = (date1, date2) =>
@@ -27,6 +26,11 @@ const AvgBookingUtilisation = ({
   const formatTime = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString([], { weekday: "short", year: "numeric", month: "short", day: "numeric" });
   };
 
   const calculateUtilization = () => {
@@ -56,7 +60,6 @@ const AvgBookingUtilisation = ({
       const startTime = new Date(BookingStartTime);
       const endTime = new Date(BookingEndTime);
 
-      // Get occupancy data for the entire booking duration
       const bookingOccupancy = occupancyData.filter((entry) => {
         const entryTime = new Date(entry.Time);
         return (
@@ -77,11 +80,21 @@ const AvgBookingUtilisation = ({
         EndTime: formatTime(BookingEndTime),
         FacilityName,
         wholeBookingUtilisation: wholeBookingUtilisation.toFixed(2),
+        BookingDate: formatDate(BookingStartTime),
       };
     });
   };
 
   const utilizationData = calculateUtilization();
+
+  const groupedByDate = utilizationData.reduce((acc, booking) => {
+    const date = booking.BookingDate;
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(booking);
+    return acc;
+  }, {});
 
   return (
     <div className="p-4 space-y-4">
@@ -97,21 +110,28 @@ const AvgBookingUtilisation = ({
           </tr>
         </thead>
         <tbody>
-          {utilizationData.length > 0 ? (
-            utilizationData.map(({
-              BookingReferenceNumber,
-              FacilityName,
-              StartTime,
-              EndTime,
-              wholeBookingUtilisation,
-            }) => (
-              <tr key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`} className="border border-gray-300">
-                <td className="border border-gray-300 px-4 py-2">{BookingReferenceNumber}</td>
-                <td className="border border-gray-300 px-4 py-2">{FacilityName}</td>
-                <td className="border border-gray-300 px-4 py-2">{StartTime}</td>
-                <td className="border border-gray-300 px-4 py-2">{EndTime}</td>
-                <td className="border border-gray-300 px-4 py-2">{wholeBookingUtilisation}%</td>
-              </tr>
+          {Object.keys(groupedByDate).length > 0 ? (
+            Object.entries(groupedByDate).map(([date, bookings]) => (
+              <React.Fragment key={date}>
+                <tr className="bg-blue-100">
+                  <td colSpan="5" className="text-left font-semibold px-4 py-2">{date}</td>
+                </tr>
+                {bookings.map(({
+                  BookingReferenceNumber,
+                  FacilityName,
+                  StartTime,
+                  EndTime,
+                  wholeBookingUtilisation,
+                }) => (
+                  <tr key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`} className="border border-gray-300">
+                    <td className="border border-gray-300 px-4 py-2">{BookingReferenceNumber}</td>
+                    <td className="border border-gray-300 px-4 py-2">{FacilityName}</td>
+                    <td className="border border-gray-300 px-4 py-2">{StartTime}</td>
+                    <td className="border border-gray-300 px-4 py-2">{EndTime}</td>
+                    <td className="border border-gray-300 px-4 py-2">{wholeBookingUtilisation}%</td>
+                  </tr>
+                ))}
+              </React.Fragment>
             ))
           ) : (
             <tr>

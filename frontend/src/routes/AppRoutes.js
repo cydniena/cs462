@@ -9,17 +9,19 @@ import RoomWeekly from '../screens/Room/RoomWeekly';
 import Floor from '../screens/Floor';
 import SideNav from '../screens/SideNav';
 import SpaceUtilisationSummary from '../screens/SpaceUtilisationSummary';
+import RoomDetail from '../screens/RoomDetail';
 
 const AppRoutes = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/floor" element={<Floor />} />
                 <Route path="/roomData" element={<RoomData />} />
                 <Route path="/bookingData" element={<BookingData />} />
                 <Route path="/sidenav" element={<SideNav/>} />
                 <Route path="/summary" element={<SpaceUtilisationSummary/>} />
+                <Route path="/" element={<RoomDetail />} />
 
                 {/* <Route path="/bookingUtilized" element={<BookingUtilized />} />
                 <Route path="/floorHeatMap" element={<FloorHeatMap />} />
