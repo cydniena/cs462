@@ -8,6 +8,8 @@ import FloorHeatMap from '../screens/Floor/FloorHeatMap';
 import RoomWeekly from '../screens/Room/RoomWeekly';
 import Floor from '../screens/Floor';
 import SideNav from '../screens/FilterPage';
+import SpaceUtilisationSummary from '../screens/SpaceUtilisationSummary';
+
 
 const AppRoutes = () => {
     return (
@@ -18,6 +20,7 @@ const AppRoutes = () => {
                 <Route path="/roomData" element={<RoomData />} />
                 <Route path="/bookingData" element={<BookingData />} />
                 <Route path="/sidenav" element={<SideNav/>} />
+                <Route path="/summary" element={<SpaceUtilisationSummary/>} />
 
                 {/* <Route path="/bookingUtilized" element={<BookingUtilized />} />
                 <Route path="/floorHeatMap" element={<FloorHeatMap />} />
