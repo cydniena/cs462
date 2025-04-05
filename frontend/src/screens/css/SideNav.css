@@ -116,7 +116,6 @@
   background-color: rgb(115, 203, 232);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .sidebar.open + .main-content {
     margin-left: 0;
