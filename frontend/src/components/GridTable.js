@@ -2,7 +2,6 @@
 // import '../screens/css/summary.css'
 
 // const GridTable = ({ utilizationData, roomsData }) => {
-//   // Function to calculate average utilization
 //   const calculateAverageUtilization = () => {
 //     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 //     const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
@@ -38,7 +37,6 @@
 //       <h1>Utilization Summary</h1>
       
 //       <div className="dashboard-layout">
-//         {/* Left side - Utilization Table */}
 //         <div className="table-container">
 //           <div className="utilization-grid">
 //             <div className="grid-row header">
@@ -70,13 +68,12 @@
 //           </div>
 //         </div>
 
-//         {/* Right side - Summary Panel */}
 //         <div className="summary-panel">
 //           <div className="summary-card">
 //             <h3>Space Availability</h3>
 //             <div className="summary-item">
 //               <span className="summary-label">Total Rooms:</span>
-//               <span className="summary-value">6</span>
+//               <span className="summary-value">{roomsData.length}</span>
 //             </div>
 //             <div className="summary-item">
 //               <span className="summary-label">Average Utilization:</span>
@@ -105,10 +102,11 @@
 // };
 
 // export default GridTable;
+
 import React from 'react';
 import '../screens/css/summary.css'
 
-const GridTable = ({ utilizationData, roomsData }) => {
+const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
   const calculateAverageUtilization = () => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
@@ -135,9 +133,24 @@ const GridTable = ({ utilizationData, roomsData }) => {
     return 'low-utilization';
   };
 
+  // Define fixed room counts for each building
+  const buildingRoomCounts = {
+    'SCIS1': 4,
+    'SOE/SCIS2': 2
+  };
+
+  // Get the room count based on selected building or total
+  const getRoomCount = () => {
+    if (selectedBuilding) {
+      return buildingRoomCounts[selectedBuilding] || roomsData.length;
+    }
+    return buildingRoomCounts['SCIS1'] + buildingRoomCounts['SOE/SCIS2'];
+  };
+
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
   const averageUtilization = calculateAverageUtilization();
+  const roomCount = getRoomCount();
 
   return (
     <div className="utilization-container">
@@ -180,7 +193,7 @@ const GridTable = ({ utilizationData, roomsData }) => {
             <h3>Space Availability</h3>
             <div className="summary-item">
               <span className="summary-label">Total Rooms:</span>
-              <span className="summary-value">{roomsData.length}</span>
+              <span className="summary-value">{roomCount}</span>
             </div>
             <div className="summary-item">
               <span className="summary-label">Average Utilization:</span>

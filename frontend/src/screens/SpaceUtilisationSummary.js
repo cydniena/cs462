@@ -145,6 +145,7 @@ const SpaceUtilisationSummary = () => {
   };
 
   const handleBuildingSelect = (building) => {
+    setSelectedBuilding(building);
     filterByBuilding(building);
     toggleSidebar();
   };
@@ -175,6 +176,7 @@ const SpaceUtilisationSummary = () => {
           roomsData={selectedBuilding ? 
             roomsData.filter(room => room.FacilityName.includes(selectedBuilding)) : 
             roomsData} 
+            selectedBuilding={selectedBuilding} 
         />
       </div>
     </div>
