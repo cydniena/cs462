@@ -5,15 +5,17 @@ import SideNav from '../components/SideNav';
 
 const SpaceUtilisationSummary = () => {
   const [utilizationData, setUtilizationData] = useState([]);
+  const [filteredUtilizationData, setFilteredUtilizationData] = useState([]);
   const [roomsData, setRoomsData] = useState([]);
+  const [bookingsData, setBookingsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data from both endpoints
         const [roomsResponse, bookingsResponse] = await Promise.all([
           fetch('http://localhost:5005/api/rooms'),
           fetch('http://localhost:5005/api/bookings')
@@ -24,12 +26,13 @@ const SpaceUtilisationSummary = () => {
         }
 
         const rooms = await roomsResponse.json();
-        const bookingsData = await bookingsResponse.json();
+        const bookings = await bookingsResponse.json();
 
         setRoomsData(rooms);
-        // Process the data to calculate utilization
-        const processedData = processUtilizationData(rooms, bookingsData);
+        setBookingsData(bookings);
+        const processedData = processUtilizationData(rooms, bookings);
         setUtilizationData(processedData);
+        setFilteredUtilizationData(processedData);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -40,12 +43,45 @@ const SpaceUtilisationSummary = () => {
     fetchData();
   }, []);
 
-  // Function to process the data and calculate utilization percentages
-  const processUtilizationData = (roomsData, bookingsData) => {
+  // Function to filter data by building
+  const filterByBuilding = (building) => {
+    setSelectedBuilding(building);
+    
+    if (!building) {
+      setFilteredUtilizationData(utilizationData);
+      return;
+    }
+
+    // Determine the building name mapping
+    const buildingMapping = {
+      'SCIS1': 'School of Computing & Information Systems 1',
+      'SOE/SCIS2': 'School of Economics/School of Computing & Information Systems 2'
+    };
+
+    const buildingName = buildingMapping[building];
+    
+    // Filter rooms that belong to the selected building
+    const filteredRooms = roomsData.filter(room => {
+      return room.FacilityName.includes(building);
+    });
+
+    // Filter bookings that belong to the selected building
+    const filteredBookings = bookingsData.filter(booking => {
+      return booking.Building === buildingName && 
+             booking.BookingStatus === 'Confirmed';
+    });
+
+    // Process only the filtered data
+    const filteredData = processUtilizationData(filteredRooms, filteredBookings);
+    setFilteredUtilizationData(filteredData);
+  };
+
+  // Modified processUtilizationData function
+  const processUtilizationData = (roomsToProcess, bookingsToProcess) => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
     
-    const confirmedBookings = bookingsData.filter(booking => 
+    const confirmedBookings = bookingsToProcess.filter(booking => 
       booking.BookingStatus === 'Confirmed'
     );
 
@@ -62,7 +98,7 @@ const SpaceUtilisationSummary = () => {
       });
     });
 
-    roomsData.forEach(room => {
+    roomsToProcess.forEach(room => {
       const date = new Date(room.Time);
       const day = days[date.getDay()];
       const hour = date.getHours();
@@ -81,7 +117,7 @@ const SpaceUtilisationSummary = () => {
       const startHour = startDate.getHours();
       const endHour = endDate.getHours();
       
-      const room = roomsData.find(r => r.FacilityName === booking.FacilityName);
+      const room = roomsToProcess.find(r => r.FacilityName === booking.FacilityName);
       const capacity = room ? room.Capacity : 50;
       
       for (let hour = startHour; hour <= endHour; hour++) {
@@ -108,6 +144,11 @@ const SpaceUtilisationSummary = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleBuildingSelect = (building) => {
+    filterByBuilding(building);
+    toggleSidebar();
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -120,14 +161,20 @@ const SpaceUtilisationSummary = () => {
         <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
       </div>
 
-      {/* SideNav Component */}
-      <SideNav isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* SideNav Component with building selection handler */}
+      <SideNav 
+        isOpen={sidebarOpen} 
+        toggleSidebar={toggleSidebar}
+        onBuildingSelect={handleBuildingSelect}
+      />
 
       {/* Main Content */}
       <div className="main-content">
         <GridTable
-          utilizationData={utilizationData} 
-          roomsData={roomsData} 
+          utilizationData={filteredUtilizationData} 
+          roomsData={selectedBuilding ? 
+            roomsData.filter(room => room.FacilityName.includes(selectedBuilding)) : 
+            roomsData} 
         />
       </div>
     </div>
