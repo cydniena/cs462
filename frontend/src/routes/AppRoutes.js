@@ -7,9 +7,8 @@ import BookingUtilized from '../screens/Room/BookedUtilized';
 import FloorHeatMap from '../screens/Floor/FloorHeatMap';
 import RoomWeekly from '../screens/Room/RoomWeekly';
 import Floor from '../screens/Floor';
-import SideNav from '../screens/FilterPage';
+import SideNav from '../screens/SideNav';
 import SpaceUtilisationSummary from '../screens/SpaceUtilisationSummary';
-
 
 const AppRoutes = () => {
     return (

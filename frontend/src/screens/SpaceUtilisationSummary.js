@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './css/summary.css';
+import '../screens/css/SideNav.css';
+import GridTable from '../components/GridTable';
+import SideNav from '../components/SideNav';
 
 const SpaceUtilisationSummary = () => {
   const [utilizationData, setUtilizationData] = useState([]);
+  const [roomsData, setRoomsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,11 +23,12 @@ const SpaceUtilisationSummary = () => {
           throw new Error('Failed to fetch data');
         }
 
-        const roomsData = await roomsResponse.json();
+        const rooms = await roomsResponse.json();
         const bookingsData = await bookingsResponse.json();
 
+        setRoomsData(rooms);
         // Process the data to calculate utilization
-        const processedData = processUtilizationData(roomsData, bookingsData);
+        const processedData = processUtilizationData(rooms, bookingsData);
         setUtilizationData(processedData);
         setLoading(false);
       } catch (err) {
@@ -37,16 +42,13 @@ const SpaceUtilisationSummary = () => {
 
   // Function to process the data and calculate utilization percentages
   const processUtilizationData = (roomsData, bookingsData) => {
-    // Group data by day of week and hour
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const hours = Array.from({ length: 15 }, (_, i) => 8 + i); // 8am to 10pm
+    const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
     
-    // Filter only confirmed bookings
     const confirmedBookings = bookingsData.filter(booking => 
       booking.BookingStatus === 'Confirmed'
     );
 
-    // Create a map for utilization data
     const utilizationMap = {};
     
     days.forEach(day => {
@@ -60,7 +62,6 @@ const SpaceUtilisationSummary = () => {
       });
     });
 
-    // Process rooms data
     roomsData.forEach(room => {
       const date = new Date(room.Time);
       const day = days[date.getDay()];
@@ -72,30 +73,25 @@ const SpaceUtilisationSummary = () => {
       }
     });
 
-    // Process bookings data (to account for future bookings)
     confirmedBookings.forEach(booking => {
       const startDate = new Date(booking.BookingStartTime);
       const endDate = new Date(booking.BookingEndTime);
       const day = days[startDate.getDay()];
       
-      // Get all hours this booking spans
       const startHour = startDate.getHours();
       const endHour = endDate.getHours();
       
-      // Find the room's capacity
       const room = roomsData.find(r => r.FacilityName === booking.FacilityName);
-      const capacity = room ? room.Capacity : 50; // default to 50 if not found
+      const capacity = room ? room.Capacity : 50;
       
       for (let hour = startHour; hour <= endHour; hour++) {
         if (utilizationMap[day] && utilizationMap[day][hour]) {
-          // For bookings, we'll assume full capacity utilization
           utilizationMap[day][hour].totalCount += capacity;
           utilizationMap[day][hour].totalCapacity += capacity;
         }
       }
     });
 
-    // Calculate utilization percentages
     days.forEach(day => {
       hours.forEach(hour => {
         const data = utilizationMap[day][hour];
@@ -108,66 +104,31 @@ const SpaceUtilisationSummary = () => {
     return utilizationMap;
   };
 
-  // Function to determine cell color based on utilization percentage
-  const getCellColor = (percentage) => {
-    if (percentage >= 80) return 'high-utilization'; // red
-    if (percentage >= 60) return 'medium-utilization'; // yellow
-    return 'low-utilization'; // green
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const hours = Array.from({ length: 15 }, (_, i) => 8 + i); // 8am to 10pm
-
   return (
-    <div className="utilization-container">
-      <h1>Space Utilization Summary</h1>
-      <div className="utilization-grid">
-        {/* Header row with hours */}
-        <div className="grid-row header">
-          <div className="grid-cell time-label">Time/Day</div>
-          {hours.map(hour => (
-            <div key={hour} className="grid-cell hour-header">
-              {hour}:00
-            </div>
-          ))}
-        </div>
-        
-        {/* Data rows for each day */}
-        {days.map(day => (
-          <div key={day} className="grid-row">
-            <div className="grid-cell day-label">{day}</div>
-            {hours.map(hour => {
-              const data = utilizationData[day]?.[hour] || { utilization: 0 };
-              return (
-                <div 
-                  key={`${day}-${hour}`} 
-                  className={`grid-cell ${getCellColor(data.utilization)}`}
-                  title={`${day} ${hour}:00 - Utilization: ${data.utilization}%`}
-                >
-                  {data.utilization}%
-                </div>
-              );
-            })}
-          </div>
-        ))}
+    <div className="page-container">
+      {/* Hamburger Icon */}
+      <div className="hamburger-icon" onClick={toggleSidebar}>
+        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
       </div>
-      
-      <div className="legend">
-        <div className="legend-item">
-          <div className="legend-color low-utilization"></div>
-          <span>Low Utilization (0-59%)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color medium-utilization"></div>
-          <span>Medium Utilization (60-79%)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color high-utilization"></div>
-          <span>High Utilization (80-100%)</span>
-        </div>
+
+      {/* SideNav Component */}
+      <SideNav isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+
+      {/* Main Content */}
+      <div className="main-content">
+        <GridTable
+          utilizationData={utilizationData} 
+          roomsData={roomsData} 
+        />
       </div>
     </div>
   );
