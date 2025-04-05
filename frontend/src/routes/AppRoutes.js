@@ -5,18 +5,20 @@ import RoomData from '../screens/RoomData';
 import BookingData from '../screens/BookingData';
 import BookingUtilized from '../screens/Room/BookedUtilized';
 import FloorHeatMap from '../screens/Floor/FloorHeatMap';
-import FilterPage from '../screens/FilterPage';
 import RoomWeekly from '../screens/Room/RoomWeekly';
-import Table3 from '../screens/Table3';
+import Floor from '../screens/Floor';
+import SideNav from '../screens/FilterPage';
 
 const AppRoutes = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/table3" element={<Table3 />} />
+                <Route path="/floor" element={<Floor />} />
                 <Route path="/roomData" element={<RoomData />} />
                 <Route path="/bookingData" element={<BookingData />} />
+                <Route path="/sidenav" element={<SideNav/>} />
+
                 {/* <Route path="/bookingUtilized" element={<BookingUtilized />} />
                 <Route path="/floorHeatMap" element={<FloorHeatMap />} />
                 <Route path="/filter" element={<FilterPage/>} />
