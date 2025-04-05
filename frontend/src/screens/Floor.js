@@ -13,6 +13,7 @@ import OverallStatusPie from "../components/OverallStatusPie";
 import FloorHeatMap from "./Floor/FloorHeatMap";
 import BarChartsAndTable from "../components/BarChartsAndTable";
 import PieCharts from "../components/PieCharts";
+import SideNav from '../components/SideNav';
 
 ChartJS.register(
   CategoryScale,
@@ -34,6 +35,23 @@ const Floor = () => {
   const [utilizationData, setUtilizationData] = useState([]);
   const [opportunityData, setOpportunityData] = useState([]);
   const [pieChartData, setPieChartData] = useState([0, 0, 0, 0]);
+  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Filter data by building
+  const filterByBuilding = (data, building) => {
+    if (!building) return data;
+    return data.filter(item => {
+      const buildingName = item.building.includes("School of Computing & Information Systems 1") ? 
+        "SCIS1" : "SOE/SCIS2";
+      return buildingName === building;
+    });
+  };
 
   // Fetch data from API
   useEffect(() => {
@@ -201,9 +219,6 @@ const Floor = () => {
       setPieChartData(percentages);
     }
   }, [bookings, rooms, timeFilter, selectedDate, selectedHour]);
-
-  if (loading) return <div>Loading data...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   // Calculate utilization percentages
   const calculateUtilization = () => {
@@ -614,8 +629,9 @@ const Floor = () => {
 
     return {
       ...utilItem,
-      opportunityRooms: oppItem ? oppItem.opportunityRooms : 0,
-      opportunityPercentage: oppItem ? oppItem.percentage : "0.00",
+      opportunityCount: oppItem ? oppItem.opportunityCount : 0,
+      opportunityPercentage: oppItem ? oppItem.opportunityPercentage : "0.00",
+      opportunityRoomDetails: oppItem ? oppItem.opportunityRoomDetails : []
     };
   });
 
@@ -623,6 +639,10 @@ const Floor = () => {
   const groupedPieChartData = {};
   utilizationData.forEach((data) => {
     const key = `${data.building}|${data.floor}`;
+    const oppItem = opportunityData.find(
+      (item) => item.building === data.building && item.floor === data.floor
+    );
+    
     groupedPieChartData[key] = [
       isNaN(parseFloat(data.unbookedUtilizedPercentage))
         ? 0
@@ -630,9 +650,9 @@ const Floor = () => {
       isNaN(parseFloat(data.bookedUnutilizedPercentage))
         ? 0
         : parseFloat(data.bookedUnutilizedPercentage),
-      isNaN(parseFloat(data.opportunityPercentage))
-        ? 0
-        : parseFloat(data.opportunityPercentage),
+      oppItem && !isNaN(parseFloat(oppItem.opportunityPercentage))
+        ? parseFloat(oppItem.opportunityPercentage)
+        : 0,
       100 -
         ((isNaN(parseFloat(data.unbookedUtilizedPercentage))
           ? 0
@@ -640,9 +660,9 @@ const Floor = () => {
           (isNaN(parseFloat(data.bookedUnutilizedPercentage))
             ? 0
             : parseFloat(data.bookedUnutilizedPercentage)) +
-          (isNaN(parseFloat(data.opportunityPercentage))
-            ? 0
-            : parseFloat(data.opportunityPercentage))),
+          (oppItem && !isNaN(parseFloat(oppItem.opportunityPercentage))
+            ? parseFloat(oppItem.opportunityPercentage)
+            : 0)),
     ];
   });
 
@@ -658,82 +678,102 @@ const Floor = () => {
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h2>Room Utilization Dashboard</h2>
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", display: "flex" }}>
+      {/* Side Navigation */}
+      <SideNav 
+        isOpen={isSidebarOpen} 
+        toggleSidebar={toggleSidebar}
+        onBuildingSelect={setSelectedBuilding}
+      />
 
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          gap: "20px",
-          alignItems: "center",
-          flexWrap: "wrap",
-          flexDirection: "row",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-          <label htmlFor="timeFilter">Time Filter:</label>
-          <select
-            id="timeFilter"
-            value={timeFilter}
-            onChange={(e) => setTimeFilter(e.target.value)}
-            style={{ padding: "5px" }}
-          >
-            <option value="hour">By Hour</option>
-            <option value="day">By Day</option>
-            <option value="week">By Week</option>
-          </select>
-        </div>
+      {/* Main Content */}
+      <div style={{ flex: 1, marginLeft: isSidebarOpen ? "250px" : "0", transition: "margin 0.3s" }}>
+        <button 
+          onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            left: isSidebarOpen ? '250px' : '0',
+            top: '20px',
+            zIndex: 1000,
+            transition: 'left 0.3s',
+            padding: '10px',
+            background: '#333',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          {isSidebarOpen ? '◀' : '▶'}
+        </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-          <label htmlFor="datePicker">Date:</label>
-          <input
-            type="date"
-            id="datePicker"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            style={{ padding: "5px" }}
-          />
-        </div>
+        <h2>Room Utilization Dashboard</h2>
 
-        {timeFilter === "hour" && (
+        <div style={{ marginBottom: "20px", display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <label htmlFor="hourPicker">Hour:</label>
+            <label htmlFor="timeFilter">Time Filter:</label>
             <select
-              id="hourPicker"
-              value={selectedHour}
-              onChange={(e) => setSelectedHour(parseInt(e.target.value))}
+              id="timeFilter"
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value)}
               style={{ padding: "5px" }}
             >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i} value={i}>
-                  {i}:00
-                </option>
-              ))}
+              <option value="hour">By Hour</option>
+              <option value="day">By Day</option>
+              <option value="week">By Week</option>
             </select>
           </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <label htmlFor="datePicker">Date:</label>
+            <input
+              type="date"
+              id="datePicker"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{ padding: "5px" }}
+            />
+          </div>
+
+          {timeFilter === "hour" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <label htmlFor="hourPicker">Hour:</label>
+              <select
+                id="hourPicker"
+                value={selectedHour}
+                onChange={(e) => setSelectedHour(parseInt(e.target.value))}
+                style={{ padding: "5px" }}
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {utilizationData.length > 0 && opportunityData.length > 0 && (
+          <>
+            <BarChartsAndTable
+              utilizationData={filterByBuilding(utilizationData, selectedBuilding)}
+              opportunityData={filterByBuilding(opportunityData, selectedBuilding)}
+              timeFilter={timeFilter}
+              mergedTableData={filterByBuilding(mergedTableData, selectedBuilding)}
+            />
+
+            <PieCharts groupedPieChartData={groupedPieChartData} />
+          </>
         )}
-      </div>
 
-      {utilizationData.length > 0 && opportunityData.length > 0 && (
-        <>
-        <BarChartsAndTable
-          utilizationData={utilizationData}
-          opportunityData={opportunityData}
-          timeFilter={timeFilter}
-          mergedTableData={mergedTableData}
-        />
-
-        <PieCharts groupedPieChartData={groupedPieChartData} />
-      </>
-      )}
-      <div style={{ marginTop: "80px" }}>
-        <FloorHeatMap
-          occupancyData={rooms}
-          timeRange={timeFilter}
-          selectedDate={selectedDate}
-          selectedHour={selectedHour}
-        />
+        <div style={{ marginTop: "80px" }}>
+          <FloorHeatMap
+            occupancyData={rooms}
+            timeRange={timeFilter}
+            selectedDate={selectedDate}
+            selectedHour={selectedHour}
+          />
+        </div>
       </div>
     </div>
   );

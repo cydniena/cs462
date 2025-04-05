@@ -2,7 +2,7 @@ import React from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine
 } from 'recharts';
-import '../screens/css/summary.css'
+import '../screens/css/summary.css';
 
 const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -22,7 +22,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
       });
     });
 
-    return dataPoints > 0 ? Math.round(totalUtilization / dataPoints) : 0;
+    return dataPoints > 0 ? (totalUtilization / dataPoints).toFixed(2) : '0.00';
   };
 
   const getAverageUtilizationByHour = () => {
@@ -40,7 +40,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
       return {
         hour: `${hour}:00`,
-        utilization: count > 0 ? Math.round(total / count) : 0
+        utilization: count > 0 ? (total / count).toFixed(2) : '0.00'
       };
     });
   };
@@ -60,7 +60,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
       return {
         day,
-        utilization: count > 0 ? Math.round(total / count) : 0
+        utilization: count > 0 ? (total / count).toFixed(2) : '0.00'
       };
     });
   };
@@ -87,6 +87,15 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
   const roomCount = getRoomCount();
   const hourlyData = getAverageUtilizationByHour();
   const dailyData = getAverageUtilizationPerDay();
+
+  // Calculate average hourly utilization (sum of hourly percentages / 15 hours)
+  const averageHourlyUtilization = (hourlyData.reduce((acc, { utilization }) => acc + parseFloat(utilization), 0) / hours.length).toFixed(2);
+
+  // Calculate average daily utilization (sum of daily percentages / 7 days)
+  const averageDailyUtilization = (dailyData.reduce((acc, { utilization }) => acc + parseFloat(utilization), 0) / days.length).toFixed(2);
+
+  // Calculate average weekly utilization
+  const averageWeeklyUtilization = ((parseFloat(averageHourlyUtilization) + parseFloat(averageDailyUtilization)) / 2).toFixed(2);
 
   return (
     <div className="utilization-container">
@@ -124,6 +133,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
           </div>
         </div>
 
+        {/* Existing summary panel for space availability */}
         <div className="summary-panel">
           <div className="summary-card">
             <h3>Space Availability</h3>
@@ -138,7 +148,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="legend">
         <div className="legend-item">
           <div className="legend-color low-utilization"></div>
@@ -156,6 +166,20 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
       {/* Hourly and Daily Utilization Overview Charts - Side by Side */}
       <div className="charts-container" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
+
+      <div className="summary-panel-right">
+        <div className="summary-card">
+          <h3>Utilization Overview</h3>
+          <div className="summary-item">
+            <span className="summary-label">Average Hourly Utilization:</span>
+            <span className="summary-value">{averageHourlyUtilization}%</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Average Daily Utilization:</span>
+            <span className="summary-value">{averageDailyUtilization}%</span>
+          </div>
+        </div>
+      </div>
         
         {/* Hourly Utilization Overview Chart */}
         <div className="chart-box" style={{ width: '40%' }}>
