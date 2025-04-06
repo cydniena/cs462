@@ -274,7 +274,11 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   };
 
   const formatPerBookingDate = (isoString) => {
@@ -891,7 +895,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
               <Bar dataKey="utilization" fill="#4CAF50" />
               <ReferenceLine
                 y={70}
-                label="Expected (70%)"
+                label={{ value: "Expected (70%)", position: "top" }}
                 stroke="black"
                 strokeDasharray="3 3"
               />
@@ -911,7 +915,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
               <Bar dataKey="utilization" fill="#2196F3" />
               <ReferenceLine
                 y={70}
-                label="Expected (70%)"
+                label={{ value: "Expected (70%)", position: "top" }}
                 stroke="black"
                 strokeDasharray="3 3"
               />
