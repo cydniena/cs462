@@ -6,6 +6,7 @@ import AvgBookingUtilisation from "./Room/AvgBookingUtilisation";
 import RoomWeekly from "./Room/RoomWeekly";
 import PerRoomLine from "../components/PerRoomLine";
 import CurrentOccupation from "./Room/CurrentOccupation";
+import Charts from "./Room/Charts";
 
 const Dashboard = () => {
   const [roomsOccupancy, setRoomsOccupancy] = useState([]);
@@ -265,6 +266,14 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <Charts
+          utilizationData={roomsOccupancy}
+          bookingsData={booking}
+          selectedRoom="SCIS1 Classroom 3-1"
+        />
       </div>
 
       <div className="mt-8">

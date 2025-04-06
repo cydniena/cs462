@@ -34,10 +34,8 @@ const HeatMap = ({ data }) => {
         
         // Fix to shift Sunday (0) to Saturday (6), keep other days aligned with labels
         day = day === 0 ? 6 : day - 1;
-        console.log("DAY: ", day);
 
         const hour = date.getHours(); // Get the hour (0 - 23)
-        console.log("HOUR: ", hour);
         const proportion = room.Count / room.Capacity;
 
         return {
