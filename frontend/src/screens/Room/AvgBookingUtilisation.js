@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const AvgBookingUtilisation = ({
   bookings = [],
@@ -8,6 +8,8 @@ const AvgBookingUtilisation = ({
   selectedDate = "",
   selectedHour = "",
 }) => {
+  const [showModal, setShowModal] = useState(false);
+
   const selectedDateObj = new Date(selectedDate);
 
   const isSameDay = (date1, date2) =>
@@ -17,7 +19,7 @@ const AvgBookingUtilisation = ({
 
   const isSameWeek = (date1, date2) => {
     const startOfWeek = new Date(date2);
-    startOfWeek.setDate(startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)); // Adjust to Monday
+    startOfWeek.setDate(startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7));
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     return date1 >= startOfWeek && date1 <= endOfWeek;
@@ -30,15 +32,19 @@ const AvgBookingUtilisation = ({
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleDateString([], { weekday: "short", year: "numeric", month: "short", day: "numeric" });
+    return date.toLocaleDateString([], {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const calculateUtilization = () => {
     const filteredBookings = bookings.filter((booking) => {
       const bookingDate = new Date(booking.BookingStartTime);
-      if (booking.BookingStatus !== "Confirmed" || booking.FacilityName !== roomName) {
-        return false;
-      }
+      if (booking.BookingStatus !== "Confirmed" || booking.FacilityName !== roomName) return false;
+
       if (timeRange === "hour") {
         return (
           isSameDay(bookingDate, selectedDateObj) &&
@@ -46,12 +52,8 @@ const AvgBookingUtilisation = ({
           new Date(booking.BookingEndTime).getHours() > selectedHour
         );
       }
-      if (timeRange === "day") {
-        return isSameDay(bookingDate, selectedDateObj);
-      }
-      if (timeRange === "week") {
-        return isSameWeek(bookingDate, selectedDateObj);
-      }
+      if (timeRange === "day") return isSameDay(bookingDate, selectedDateObj);
+      if (timeRange === "week") return isSameWeek(bookingDate, selectedDateObj);
       return false;
     });
 
@@ -87,18 +89,46 @@ const AvgBookingUtilisation = ({
 
   const utilizationData = calculateUtilization();
 
+  // Group by BookingDate (keep the original grouping)
   const groupedByDate = utilizationData.reduce((acc, booking) => {
     const date = booking.BookingDate;
-    if (!acc[date]) {
-      acc[date] = [];
-    }
+    if (!acc[date]) acc[date] = [];
     acc[date].push(booking);
     return acc;
   }, {});
 
+  // Get the top 5 grouped bookings (as per your original logic)
+  const getTop5Grouped = () => {
+    let count = 0;
+    const result = {};
+
+    for (const date of Object.keys(groupedByDate)) {
+      for (const booking of groupedByDate[date]) {
+        if (count >= 5) return result;
+        if (!result[date]) result[date] = [];
+        result[date].push(booking);
+        count++;
+      }
+    }
+    return result;
+  };
+
+  const displayData = getTop5Grouped();
+
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-lg font-semibold">Average Booking Utilisation</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Average Booking Utilisation</h2>
+        {Object.keys(groupedByDate).length > 0 && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            View Details
+          </button>
+        )}
+      </div>
+
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -110,19 +140,13 @@ const AvgBookingUtilisation = ({
           </tr>
         </thead>
         <tbody>
-          {Object.keys(groupedByDate).length > 0 ? (
-            Object.entries(groupedByDate).map(([date, bookings]) => (
+          {Object.keys(displayData).length > 0 ? (
+            Object.entries(displayData).map(([date, bookings]) => (
               <React.Fragment key={date}>
                 <tr className="bg-blue-100">
                   <td colSpan="5" className="text-left font-semibold px-4 py-2">{date}</td>
                 </tr>
-                {bookings.map(({
-                  BookingReferenceNumber,
-                  FacilityName,
-                  StartTime,
-                  EndTime,
-                  wholeBookingUtilisation,
-                }) => (
+                {bookings.map(({ BookingReferenceNumber, FacilityName, StartTime, EndTime, wholeBookingUtilisation }) => (
                   <tr key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`} className="border border-gray-300">
                     <td className="border border-gray-300 px-4 py-2">{BookingReferenceNumber}</td>
                     <td className="border border-gray-300 px-4 py-2">{FacilityName}</td>
@@ -142,6 +166,50 @@ const AvgBookingUtilisation = ({
           )}
         </tbody>
       </table>
+
+      {/* Modal for full data */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-start pt-20 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-5xl p-6 relative overflow-y-auto max-h-[80vh]">
+            <h3 className="text-xl font-semibold mb-4">All Booking Utilisation</h3>
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-4 text-xl text-gray-600 hover:text-gray-900"
+            >
+              &times;
+            </button>
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 px-4 py-2">Booking Ref No</th>
+                  <th className="border border-gray-300 px-4 py-2">Facility Name</th>
+                  <th className="border border-gray-300 px-4 py-2">Start Time</th>
+                  <th className="border border-gray-300 px-4 py-2">End Time</th>
+                  <th className="border border-gray-300 px-4 py-2">Whole Booking Avg Utilisation (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(groupedByDate).map(([date, bookings]) => (
+                  <React.Fragment key={date}>
+                    <tr className="bg-blue-100">
+                      <td colSpan="5" className="text-left font-semibold px-4 py-2">{date}</td>
+                    </tr>
+                    {bookings.map(({ BookingReferenceNumber, FacilityName, StartTime, EndTime, wholeBookingUtilisation }) => (
+                      <tr key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`} className="border border-gray-300">
+                        <td className="border border-gray-300 px-4 py-2">{BookingReferenceNumber}</td>
+                        <td className="border border-gray-300 px-4 py-2">{FacilityName}</td>
+                        <td className="border border-gray-300 px-4 py-2">{StartTime}</td>
+                        <td className="border border-gray-300 px-4 py-2">{EndTime}</td>
+                        <td className="border border-gray-300 px-4 py-2">{wholeBookingUtilisation}%</td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

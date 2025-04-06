@@ -40,7 +40,7 @@ const SideNav = ({ isOpen, toggleSidebar, onBuildingSelect }) => {
 
   const handleSearch = () => {
     navigate(
-      `/results?building=${encodeURIComponent(building)}&floor=${encodeURIComponent(floor)}&facilityType=${encodeURIComponent(facilityType)}&room=${encodeURIComponent(room)}`
+      `/roomSummary?building=${encodeURIComponent(building)}&floor=${encodeURIComponent(floor)}&facilityType=${encodeURIComponent(facilityType)}&room=${encodeURIComponent(room)}`
     );
     toggleSidebar();
   };

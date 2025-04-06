@@ -298,7 +298,8 @@ const Dashboard = () => {
         <AvgBookingUtilisation
           occupancyData={roomsOccupancy}
           bookings={booking}
-          roomName={selectedDetailRoom}
+          //roomName={selectedDetailRoom}
+          roomName="SCIS1 Classroom 3-1"
           timeRange={timeRange}
           selectedDate={selectedDate}
           selectedHour={selectedHour}

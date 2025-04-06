@@ -20,8 +20,8 @@ const AppRoutes = () => {
                 <Route path="/roomData" element={<RoomData />} />
                 <Route path="/bookingData" element={<BookingData />} />
                 <Route path="/sidenav" element={<SideNav/>} />
-                <Route path="/summary" element={<SpaceUtilisationSummary/>} />
-                <Route path="/" element={<RoomDetail />} />
+                <Route path="/" element={<SpaceUtilisationSummary/>} />
+                <Route path="/roomSummary" element={<RoomDetail />} />
 
                 {/* <Route path="/bookingUtilized" element={<BookingUtilized />} />
                 <Route path="/floorHeatMap" element={<FloorHeatMap />} />

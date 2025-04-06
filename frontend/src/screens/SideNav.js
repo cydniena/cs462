@@ -42,7 +42,7 @@ const SideNav = () => {
 
   const handleSearch = () => {
     navigate(
-      `/?building=${encodeURIComponent(building)}&floor=${encodeURIComponent(floor)}&facilityType=${encodeURIComponent(facilityType)}&room=${encodeURIComponent(room)}`
+      `/roomSummary?building=${encodeURIComponent(building)}&floor=${encodeURIComponent(floor)}&facilityType=${encodeURIComponent(facilityType)}&room=${encodeURIComponent(room)}`
     );
     setSidebarOpen(false); // Close sidebar after search
   };

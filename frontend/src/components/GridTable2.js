@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "../screens/css/summary.css";
 import { startOfWeek, addDays, parseISO, format } from "date-fns";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine
+} from 'recharts';
 
 const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   const [timeRange, setTimeRange] = useState("day");
@@ -236,6 +239,8 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   // Average Booking Utilization
 
   // Convert selectedDate to Date object
+  const [showModal, setShowModal] = useState(false);
+
   const selectedDateObj = new Date(selectedDate);
 
   const isSameDay = (date1, date2) =>
@@ -247,7 +252,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
     const startOfWeek = new Date(date2);
     startOfWeek.setDate(
       startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)
-    ); // Adjust to Monday
+    );
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     return date1 >= startOfWeek && date1 <= endOfWeek;
@@ -258,7 +263,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  const formatBookingDate = (isoString) => {
+  const formatPerBookingDate = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleDateString([], {
       weekday: "short",
@@ -274,9 +279,9 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
       if (
         booking.BookingStatus !== "Confirmed" ||
         booking.FacilityName !== selectedRoom
-      ) {
+      )
         return false;
-      }
+
       if (timeRange === "hour") {
         return (
           isSameDay(bookingDate, selectedDateObj) &&
@@ -284,12 +289,8 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
           new Date(booking.BookingEndTime).getHours() > selectedHour
         );
       }
-      if (timeRange === "day") {
-        return isSameDay(bookingDate, selectedDateObj);
-      }
-      if (timeRange === "week") {
-        return isSameWeek(bookingDate, selectedDateObj);
-      }
+      if (timeRange === "day") return isSameDay(bookingDate, selectedDateObj);
+      if (timeRange === "week") return isSameWeek(bookingDate, selectedDateObj);
       return false;
     });
 
@@ -303,7 +304,6 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
       const startTime = new Date(BookingStartTime);
       const endTime = new Date(BookingEndTime);
 
-      // Get occupancy data for the entire booking duration
       const bookingOccupancy = utilizationData.filter((entry) => {
         const entryTime = new Date(entry.Time);
         return (
@@ -325,25 +325,42 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
       return {
         BookingReferenceNumber,
-        BookingDate: formatBookingDate(BookingStartTime),
         StartTime: formatTime(BookingStartTime),
         EndTime: formatTime(BookingEndTime),
         FacilityName,
         wholeBookingUtilisation: wholeBookingUtilisation.toFixed(2),
+        BookingDate: formatPerBookingDate(BookingStartTime),
       };
     });
   };
 
   const utilizationPerBookingData = calculateUtilization();
 
+  // Group by BookingDate (keep the original grouping)
   const groupedByDate = utilizationPerBookingData.reduce((acc, booking) => {
     const date = booking.BookingDate;
-    if (!acc[date]) {
-      acc[date] = [];
-    }
+    if (!acc[date]) acc[date] = [];
     acc[date].push(booking);
     return acc;
   }, {});
+
+  // Get the top 5 grouped bookings (as per your original logic)
+  const getTop5Grouped = () => {
+    let count = 0;
+    const result = {};
+
+    for (const date of Object.keys(groupedByDate)) {
+      for (const booking of groupedByDate[date]) {
+        if (count >= 5) return result;
+        if (!result[date]) result[date] = [];
+        result[date].push(booking);
+        count++;
+      }
+    }
+    return result;
+  };
+
+  const displayData = getTop5Grouped();
 
   return (
     <div className="utilization-container">
@@ -437,9 +454,31 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
               </div>
             ))}
           </div>
+
+          <div className="legend">
+            <div className="legend-item">
+              <div className="legend-color low-utilization"></div>
+              <span>Low Utilization (0-59%)</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color medium-utilization"></div>
+              <span>Medium Utilization (60-79%)</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color high-utilization"></div>
+              <span>High Utilization (80-100%)</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color">B</div>
+              <span>Booked</span>
+            </div>
+          </div>
         </div>
 
-        <div className="summary-panel">
+        <div
+          className="summary-panel"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
           <div className="summary-card">
             <h3>Latest Occupancy</h3>
             <div className="summary-item">
@@ -454,6 +493,9 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
                 {formatDate(latestData.Time)}
               </span>
             </div>
+          </div>
+          &nbsp;
+          <div className="summary-card">
             <h3>Booked & Utilized</h3>
             <div className="summary-item">
               <span className="summary-value">{bookedUtilizedPercentage}%</span>
@@ -462,90 +504,204 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         </div>
       </div>
 
-      <div className="legend">
-        <div className="legend-item">
-          <div className="legend-color low-utilization"></div>
-          <span>Low Utilization (0-59%)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color medium-utilization"></div>
-          <span>Medium Utilization (60-79%)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color high-utilization"></div>
-          <span>High Utilization (80-100%)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color"></div>
-          <span>Booked (B)</span>
-        </div>
-      </div>
+      {/* Hourly Utilization Overview Chart */}
+      {/* <div className="chart-box" style={{ width: "40%" }}>
+        <h2>Hourly Utilization Overview</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={hourlyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="hour" />
+            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+            <Tooltip formatter={(value) => `${value}%`} />
+            <Bar dataKey="utilization" fill="#4CAF50" />
+            <ReferenceLine
+              y={70}
+              label="Expected (70%)"
+              stroke="black"
+              strokeDasharray="3 3"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div> */}
+
+      {/* Daily Average Utilization Overview Chart */}
+      {/* <div className="chart-box" style={{ width: "40%" }}>
+        <h2>Daily Average Utilization Overview</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={dailyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" />
+            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+            <Tooltip formatter={(value) => `${value}%`} />
+            <Bar dataKey="utilization" fill="#2196F3" />
+            <ReferenceLine
+              y={70}
+              label="Expected (70%)"
+              stroke="black"
+              strokeDasharray="3 3"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div> */}
 
       <div className="p-4 space-y-4">
-        <h2 className="text-lg font-semibold">Average Booking Utilisation</h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">
-                Booking Ref No
-              </th>
-              <th className="border border-gray-300 px-4 py-2">Start Time</th>
-              <th className="border border-gray-300 px-4 py-2">End Time</th>
-              <th className="border border-gray-300 px-4 py-2">
-                Whole Booking Avg Utilisation (%)
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(groupedByDate).length > 0 ? (
-              Object.entries(groupedByDate).map(([date, bookings]) => (
-                <React.Fragment key={date}>
-                  <tr className="bg-blue-100">
-                    <td
-                      colSpan="5"
-                      className="text-left font-semibold px-4 py-2"
-                    >
-                      {date}
-                    </td>
-                  </tr>
-                  {bookings.map(
-                    ({
-                      BookingReferenceNumber,
-                      StartTime,
-                      EndTime,
-                      wholeBookingUtilisation,
-                    }) => (
-                      <tr
-                        key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`}
-                        className="border border-gray-300"
-                      >
-                        <td className="border border-gray-300 px-4 py-2">
-                          {BookingReferenceNumber}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {StartTime}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {EndTime}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {wholeBookingUtilisation}%
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Average Booking Utilisation</h2>
+          {Object.keys(groupedByDate).length > 0 && !showModal && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              View Details
+            </button>
+          )}
+        </div>
+
+        {!showModal && (
+          <div>
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 px-4 py-2">
+                    Booking Ref No
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">
+                    Start Time
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">End Time</th>
+                  <th className="border border-gray-300 px-4 py-2">
+                    Whole Booking Avg Utilisation (%)
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(displayData).length > 0 ? (
+                  Object.entries(displayData).map(([date, bookings]) => (
+                    <React.Fragment key={date}>
+                      <tr className="bg-blue-100">
+                        <td
+                          colSpan="5"
+                          className="text-left font-semibold px-4 py-2"
+                        >
+                          {date}
                         </td>
                       </tr>
-                    )
-                  )}
-                </React.Fragment>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center py-4">
-                  No confirmed bookings available for this room in the selected
-                  time range.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                      {bookings.map(
+                        ({
+                          BookingReferenceNumber,
+                          FacilityName,
+                          StartTime,
+                          EndTime,
+                          wholeBookingUtilisation,
+                        }) => (
+                          <tr
+                            key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`}
+                            className="border border-gray-300"
+                          >
+                            <td className="border border-gray-300 px-4 py-2">
+                              {BookingReferenceNumber}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {StartTime}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {EndTime}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {wholeBookingUtilisation}%
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-4">
+                      No confirmed bookings available for this room in the
+                      selected time range.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal for full data */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-start pt-20 z-50">
+            <div className="rounded-lg shadow-lg w-11/12 max-w-5xl p-6 relative overflow-y-auto max-h-[80vh]">
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-xl text-gray-600 hover:text-gray-900 justify-end"
+                >
+                  &times;
+                </button>
+              </div>
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 px-4 py-2">
+                      Booking Ref No
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Start Time
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      End Time
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Whole Booking Avg Utilisation (%)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(groupedByDate).map(([date, bookings]) => (
+                    <React.Fragment key={date}>
+                      <tr className="bg-blue-100">
+                        <td
+                          colSpan="5"
+                          className="text-left font-semibold px-4 py-2"
+                        >
+                          {date}
+                        </td>
+                      </tr>
+                      {bookings.map(
+                        ({
+                          BookingReferenceNumber,
+                          FacilityName,
+                          StartTime,
+                          EndTime,
+                          wholeBookingUtilisation,
+                        }) => (
+                          <tr
+                            key={`${BookingReferenceNumber}-${StartTime}-${EndTime}`}
+                            className="border border-gray-300"
+                          >
+                            <td className="border border-gray-300 px-4 py-2">
+                              {BookingReferenceNumber}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {StartTime}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {EndTime}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {wholeBookingUtilisation}%
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
