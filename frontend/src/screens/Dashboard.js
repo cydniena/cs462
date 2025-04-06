@@ -269,14 +269,6 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-8">
-        <Charts
-          utilizationData={roomsOccupancy}
-          bookingsData={booking}
-          selectedRoom="SCIS1 Classroom 3-1"
-        />
-      </div>
-
-      <div className="mt-8">
         <CurrentOccupation
           occupancyData={roomsOccupancy}
           roomName={selectedDetailRoom}

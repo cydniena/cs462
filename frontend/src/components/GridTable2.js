@@ -143,7 +143,14 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   // Function to format date to a user-friendly format
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString(); // Formats to 'MM/DD/YYYY, HH:MM:SS AM/PM'
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // 24-hour format
+    });
   };
 
   // Function to calculate the room's occupancy data for today
@@ -481,6 +488,217 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   const hourlyData = processedChartData.hourly || [];
   const dailyData = processedChartData.daily || [];
 
+  // Room Statistics
+
+  const OPERATING_HOURS = {
+    start: 8, // 8AM
+    end: 22, // 10PM
+  };
+  const HOURS_PER_DAY = OPERATING_HOURS.end - OPERATING_HOURS.start;
+  const HOURS_PER_WEEK = HOURS_PER_DAY * 7;
+
+  // Filter data based on selected time range and room
+  const filteredData = utilizationData.filter((item) => {
+    if (item.FacilityName !== selectedRoom) return false;
+
+    const itemDate = new Date(item.Time).toISOString().split("T")[0];
+    const itemHour = new Date(item.Time).getHours();
+
+    if (timeRange === "hour") {
+      return itemDate === selectedDate && itemHour == selectedHour;
+    } else if (timeRange === "day") {
+      return (
+        itemDate === selectedDate &&
+        itemHour >= OPERATING_HOURS.start &&
+        itemHour < OPERATING_HOURS.end
+      );
+    } else if (timeRange === "week") {
+      const selectedWeek = getWeekNumber(new Date(selectedDate));
+      const itemWeek = getWeekNumber(new Date(itemDate));
+      return (
+        selectedWeek === itemWeek &&
+        new Date(itemDate).getFullYear() ===
+          new Date(selectedDate).getFullYear() &&
+        itemHour >= OPERATING_HOURS.start &&
+        itemHour < OPERATING_HOURS.end
+      );
+    }
+    return true;
+  });
+
+  // Filter bookings for the selected room and time range
+  const filteredBookings = bookingsData.filter((booking) => {
+    if (booking.FacilityName !== selectedRoom) return false;
+
+    const bookingStart = new Date(booking.BookingStartTime);
+    const bookingEnd = new Date(booking.BookingEndTime);
+    const bookingStartHour = bookingStart.getHours();
+    const bookingEndHour = bookingEnd.getHours();
+
+    const bookingDate = bookingStart.toISOString().split("T")[0];
+    const selectedDateFormatted = selectedDate; // Assuming selectedDate is already formatted to "YYYY-MM-DD"
+
+    if (timeRange === "hour") {
+      // For hourly view, check if the selected hour is within the range of the booking's start and end hours
+      return (
+        bookingDate === selectedDateFormatted &&
+        parseInt(selectedHour) >= bookingStartHour &&
+        parseInt(selectedHour) < bookingEndHour
+      );
+    } else if (timeRange === "day") {
+      // For daily view, check if the booking occurs on the selected date
+      return bookingDate === selectedDateFormatted;
+    } else if (timeRange === "week") {
+      // For weekly view, check if the booking falls within the selected week
+      const selectedWeek = getWeekNumber(new Date(selectedDate));
+      const bookingWeek = getWeekNumber(new Date(bookingDate));
+      return (
+        selectedWeek === bookingWeek &&
+        new Date(bookingDate).getFullYear() ===
+          new Date(selectedDate).getFullYear()
+      );
+    }
+    return true;
+  });
+
+  // Helper function to get week number
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  }
+
+  // Calculate utilization statistics
+  const calculateUtilizationStatistics = () => {
+    if (filteredData.length === 0) {
+      return { utilized: 0, totalHours: 0 };
+    }
+
+    if (timeRange === "hour") {
+      // For hourly view, we're only looking at one specific hour
+      const isUtilized = filteredData.some((item) => item.Count > 0);
+      return {
+        utilized: isUtilized ? 1 : 0,
+        totalHours: 1,
+      };
+    } else if (timeRange === "day") {
+      const hours = new Set();
+      const utilizedHours = new Set();
+
+      filteredData.forEach((item) => {
+        const hour = new Date(item.Time).getHours();
+        hours.add(hour);
+        if (item.Count > 0) utilizedHours.add(hour);
+      });
+
+      return {
+        utilized: utilizedHours.size,
+        totalHours: hours.size,
+      };
+    } else if (timeRange === "week") {
+      const utilizedHours = filteredData.reduce((total, item) => {
+        return item.Count > 0 ? total + 1 : total;
+      }, 0);
+
+      return {
+        utilized: utilizedHours,
+        totalHours: HOURS_PER_WEEK,
+      };
+    }
+
+    return { utilized: 0, totalHours: 0 };
+  };
+
+  // Calculate booked hours
+  const calculateBookedHours = () => {
+    if (timeRange === "hour") {
+      // For hourly view, check if there's any confirmed booking for that hour
+      const isBooked = filteredBookings.some((booking) => {
+        const bookingStart = new Date(booking.BookingStartTime);
+        const bookingEnd = new Date(booking.BookingEndTime);
+
+        const startHour = bookingStart.getHours();
+        const endHour = bookingEnd.getHours();
+
+        // Check if the selected hour is within the range of the booking's start and end hours
+        return (
+          booking.BookingStatus === "Confirmed" &&
+          // Ensure the selected hour is within the booking's duration
+          startHour <= parseInt(selectedHour) &&
+          parseInt(selectedHour) < endHour
+        );
+      });
+
+      return {
+        booked: isBooked ? 1 : 0,
+        totalHours: 1,
+      };
+    } else if (timeRange === "day") {
+      // For daily view, calculate total booked hours in the day
+      const hourSet = new Set(); // To track unique hours with confirmed bookings
+
+      filteredBookings.forEach((booking) => {
+        if (booking.BookingStatus !== "Confirmed") return; // Skip non-confirmed bookings
+        const start = new Date(booking.BookingStartTime);
+        const end = new Date(booking.BookingEndTime);
+
+        const startHour = start.getHours();
+        const endHour = end.getHours();
+
+        // Add all hours between the start and end hour to the hourSet
+        for (let hour = startHour; hour < endHour; hour++) {
+          if (hour >= OPERATING_HOURS.start && hour < OPERATING_HOURS.end) {
+            hourSet.add(hour);
+          }
+        }
+      });
+
+      return {
+        booked: hourSet.size,
+        totalHours: HOURS_PER_DAY,
+      };
+    } else if (timeRange === "week") {
+      // For weekly view, calculate total booked hours in the week
+      const hourSet = new Set(); // To track unique hour slots (day + hour)
+
+      filteredBookings.forEach((booking) => {
+        if (booking.BookingStatus !== "Confirmed") return; // Skip non-confirmed bookings
+        const start = new Date(booking.BookingStartTime);
+        const end = new Date(booking.BookingEndTime);
+
+        const startHour = start.getHours();
+        const endHour = end.getHours();
+
+        // Add all hours between the start and end hour to the hourSet, creating unique time slots for each day and hour
+        for (let hour = startHour; hour < endHour; hour++) {
+          const time = new Date(
+            start.getTime() + (hour - startHour) * 60 * 60 * 1000
+          );
+          const hourSlot = time.getHours();
+
+          if (
+            hourSlot >= OPERATING_HOURS.start &&
+            hourSlot < OPERATING_HOURS.end
+          ) {
+            const dateStr = time.toISOString().split("T")[0];
+            hourSet.add(`${dateStr}-${hourSlot}`);
+          }
+        }
+      });
+
+      return {
+        booked: hourSet.size,
+        totalHours: HOURS_PER_WEEK,
+      };
+    }
+
+    return { booked: 0, totalHours: 0 };
+  };
+
+  const { utilized, totalHours } = calculateUtilizationStatistics();
+  const { booked } = calculateBookedHours();
+
   return (
     <div className="utilization-container">
       <h1>{selectedRoom} Utilization Summary</h1>
@@ -540,6 +758,63 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         )}
       </div>
 
+      <div
+        className="summary-panel"
+        style={{ display: "flex", flexDirection: "row", gap: "20px" }}
+      >
+        <div className="summary-card">
+          <h3>Latest Occupancy</h3>
+          <div className="summary-item">
+            <span className="summary-label">Occupancy:</span>
+            <span className="summary-value">
+              {latestData.Count} / {latestData.Capacity}
+            </span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Date:</span>
+            <span className="summary-value">{formatDate(latestData.Time)}</span>
+          </div>
+        </div>
+        <div className="summary-card">
+          <h3>Booked & Utilized</h3>
+          <div className="summary-item">
+            <span className="summary-value">{bookedUtilizedPercentage}%</span>
+          </div>
+        </div>
+        <div className="summary-card">
+          <h3>Utilized Hours</h3>
+          <div className="summary-item">
+            <span className="summary-value">
+              {utilized}hr/{totalHours}hr
+            </span>
+          </div>
+        </div>
+        <div className="summary-card">
+          <h3>Unutilized Hours</h3>
+          <div className="summary-item">
+            <span className="summary-value">
+              {totalHours - utilized}hr/{totalHours}hr
+            </span>
+          </div>
+        </div>
+        <div className="summary-card">
+          <h3>Booked Hours</h3>
+          <div className="summary-item">
+            <span className="summary-value">
+              {booked}hr/{totalHours}hr
+            </span>
+          </div>
+        </div>
+        <div className="summary-card">
+          <h3>Unbooked Hours</h3>
+          <div className="summary-item">
+            <span className="summary-value">
+              {totalHours - booked}hr/{totalHours}hr
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="dashboard-layout">
         <div className="table-container">
           <div className="utilization-grid">
@@ -590,34 +865,6 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
             <div className="legend-item">
               <div className="legend-color">B</div>
               <span>Booked</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="summary-panel"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
-          <div className="summary-card">
-            <h3>Latest Occupancy</h3>
-            <div className="summary-item">
-              <span className="summary-label">Occupancy:</span>
-              <span className="summary-value">
-                {latestData.Count} / {latestData.Capacity}
-              </span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Date:</span>
-              <span className="summary-value">
-                {formatDate(latestData.Time)}
-              </span>
-            </div>
-          </div>
-          &nbsp;
-          <div className="summary-card">
-            <h3>Booked & Utilized</h3>
-            <div className="summary-item">
-              <span className="summary-value">{bookedUtilizedPercentage}%</span>
             </div>
           </div>
         </div>
