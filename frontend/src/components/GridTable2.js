@@ -780,13 +780,23 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         <div className="summary-card">
           <h3>Booked & Utilized</h3>
           <div className="summary-item">
-            <span className="summary-value">{bookedUtilizedPercentage}%</span>
+            <span
+              className={`text-xl font-bold ${
+                bookedUtilizedPercentage >= 80
+                  ? "text-green-600"
+                  : bookedUtilizedPercentage >= 50
+                  ? "text-yellow-500"
+                  : "text-red-500"
+              }`}
+            >
+              {bookedUtilizedPercentage}%
+            </span>
           </div>
         </div>
         <div className="summary-card">
           <h3>Utilized Hours</h3>
           <div className="summary-item">
-            <span className="summary-value">
+            <span className="text-xl font-bold text-blue-600">
               {utilized}hr/{totalHours}hr
             </span>
           </div>
@@ -794,7 +804,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         <div className="summary-card">
           <h3>Unutilized Hours</h3>
           <div className="summary-item">
-            <span className="summary-value">
+            <span className="text-xl font-bold text-red-600">
               {totalHours - utilized}hr/{totalHours}hr
             </span>
           </div>
@@ -802,7 +812,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         <div className="summary-card">
           <h3>Booked Hours</h3>
           <div className="summary-item">
-            <span className="summary-value">
+            <span className="text-xl font-bold text-green-600">
               {booked}hr/{totalHours}hr
             </span>
           </div>
@@ -810,7 +820,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
         <div className="summary-card">
           <h3>Unbooked Hours</h3>
           <div className="summary-item">
-            <span className="summary-value">
+            <span className="text-xl font-bold text-orange-600">
               {totalHours - booked}hr/{totalHours}hr
             </span>
           </div>
@@ -924,7 +934,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Average Booking Utilisation</h2>
+          <h2>Average Booking Utilisation</h2>
           {Object.keys(groupedByDate).length > 0 && !showModal && (
             <button
               onClick={() => setShowModal(true)}
@@ -1013,7 +1023,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
               <div className="flex justify-between items-center mb-4">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-xl text-gray-600 hover:text-gray-900 justify-end"
+                  className="text-xl text-gray-600 hover:text-gray-900 justify-start"
                 >
                   &times;
                 </button>
