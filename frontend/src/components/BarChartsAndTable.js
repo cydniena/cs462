@@ -23,10 +23,20 @@ const BarChartsAndTable = ({
   utilizationData,
   opportunityData,
   timeFilter,
-  mergedTableData,
 }) => {
+  // Tooltip descriptions for each chart
+  const chartDescriptions = {
+    unbookedUtilized: "Total no. of rooms that are used but unbooked, expressed in percentage",
+    bookedUnutilized: "Total no. of rooms that are not used but booked, expressed in percentage",
+    opportunity: "Percentage of rooms that were neither booked nor used (potential opportunities)"
+  };
+
   return (
-    <>
+    <div style={{
+      width: '80%',
+      margin: '0 auto',
+      maxWidth: '1200px'
+    }}>
       <div
         style={{
           display: "grid",
@@ -36,7 +46,37 @@ const BarChartsAndTable = ({
         }}
       >
         <div style={{ height: "400px" }}>
-          <h3>Not Booked but Utilized Rooms</h3>
+          <div style={{ position: 'relative' }}>
+            <h3 
+              style={{ 
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'inline-block'
+              }}
+              title={chartDescriptions.unbookedUtilized}
+            >
+              Not Booked but Utilized Rooms
+              <span style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+                visibility: 'hidden',
+                opacity: 0,
+                transition: 'opacity 0.3s, visibility 0.3s',
+                zIndex: 10,
+                pointerEvents: 'none'
+              }}>
+                {chartDescriptions.unbookedUtilized}
+              </span>
+            </h3>
+          </div>
           <Bar
             data={{
               labels: opportunityData.map((item) => {
@@ -110,7 +150,37 @@ const BarChartsAndTable = ({
         </div>
 
         <div style={{ height: "400px" }}>
-          <h3>Booked but Unutilized Rooms</h3>
+          <div style={{ position: 'relative' }}>
+            <h3 
+              style={{ 
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'inline-block'
+              }}
+              title={chartDescriptions.bookedUnutilized}
+            >
+              Booked but Unutilized Rooms
+              <span style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+                visibility: 'hidden',
+                opacity: 0,
+                transition: 'opacity 0.3s, visibility 0.3s',
+                zIndex: 10,
+                pointerEvents: 'none'
+              }}>
+                {chartDescriptions.bookedUnutilized}
+              </span>
+            </h3>
+          </div>
           <Bar
             data={{
               labels: opportunityData.map((item) => {
@@ -180,7 +250,37 @@ const BarChartsAndTable = ({
         </div>
 
         <div style={{ height: "400px" }}>
-          <h3>Not Booked and Unutilized Rooms</h3>
+          <div style={{ position: 'relative' }}>
+            <h3 
+              style={{ 
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'inline-block'
+              }}
+              title={chartDescriptions.opportunity}
+            >
+              Not Booked and Unutilized Rooms
+              <span style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+                visibility: 'hidden',
+                opacity: 0,
+                transition: 'opacity 0.3s, visibility 0.3s',
+                zIndex: 10,
+                pointerEvents: 'none'
+              }}>
+                {chartDescriptions.opportunity}
+              </span>
+            </h3>
+          </div>
           <Bar
             data={{
               labels: opportunityData.map((item) => {
@@ -249,7 +349,7 @@ const BarChartsAndTable = ({
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

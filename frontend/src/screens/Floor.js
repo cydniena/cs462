@@ -34,17 +34,18 @@ const Floor = () => {
   const [selectedHour, setSelectedHour] = useState(9);
   const [utilizationData, setUtilizationData] = useState([]);
   const [opportunityData, setOpportunityData] = useState([]);
-  const [pieChartData, setPieChartData] = useState([0, 0, 0, 0]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Toggle sidebar function
+  const [pieChartData, setPieChartData] = useState([0, 0, 0, 0]);
+
+  // Toggle sidebar functionƒ
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setSidebarOpen(!sidebarOpen);
   };
 
   // Filter data by building
-  const filterByBuilding = (data, building) => {
+  const filterByBuildings = (data, building) => {
     if (!building) return data;
     return data.filter(item => {
       const buildingName = item.building.includes("School of Computing & Information Systems 1") ? 
@@ -681,18 +682,18 @@ const Floor = () => {
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", display: "flex" }}>
       {/* Side Navigation */}
       <SideNav 
-        isOpen={isSidebarOpen} 
+        isOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar}
         onBuildingSelect={setSelectedBuilding}
       />
 
       {/* Main Content */}
-      <div style={{ flex: 1, marginLeft: isSidebarOpen ? "250px" : "0", transition: "margin 0.3s" }}>
+      <div style={{ flex: 1, marginLeft: sidebarOpen ? "250px" : "0", transition: "margin 0.3s" }}>
         <button 
           onClick={toggleSidebar}
           style={{
             position: 'fixed',
-            left: isSidebarOpen ? '250px' : '0',
+            left: sidebarOpen ? '250px' : '0',
             top: '20px',
             zIndex: 1000,
             transition: 'left 0.3s',
@@ -703,7 +704,7 @@ const Floor = () => {
             cursor: 'pointer'
           }}
         >
-          {isSidebarOpen ? '◀' : '▶'}
+          {sidebarOpen ? '◀' : '▶'}
         </button>
 
         <h2>Room Utilization Dashboard</h2>
@@ -756,10 +757,9 @@ const Floor = () => {
         {utilizationData.length > 0 && opportunityData.length > 0 && (
           <>
             <BarChartsAndTable
-              utilizationData={filterByBuilding(utilizationData, selectedBuilding)}
-              opportunityData={filterByBuilding(opportunityData, selectedBuilding)}
+              utilizationData={filterByBuildings(utilizationData, selectedBuilding)}
+              opportunityData={filterByBuildings(opportunityData, selectedBuilding)}
               timeFilter={timeFilter}
-              mergedTableData={filterByBuilding(mergedTableData, selectedBuilding)}
             />
 
             <PieCharts groupedPieChartData={groupedPieChartData} />

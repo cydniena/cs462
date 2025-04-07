@@ -3,7 +3,8 @@ import axios from "axios";
 import "./css/data.css";
 import GridTable2 from "../components/GridTable2";
 import SideNav from "../components/SideNav";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FaHome } from "react-icons/fa"; // Importing the Home icon from react-icons
 
 function RoomDetail() {
   const [utilizationData, setUtilizationData] = useState([]);
@@ -14,6 +15,7 @@ function RoomDetail() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate(); // Hook for navigation
   const queryParams = new URLSearchParams(location.search);
   const room = queryParams.get('room');
 
@@ -50,8 +52,11 @@ function RoomDetail() {
 
   const handleBuildingSelect = (building) => {
     setSelectedBuilding(building);
-    //filterByBuilding(building);
     toggleSidebar();
+  };
+
+  const handleHomeClick = () => {
+    navigate("/"); // Navigate to the landing page
   };
 
   if (loading) return <div>Loading...</div>;
@@ -59,11 +64,29 @@ function RoomDetail() {
 
   return (
     <div className="page-container">
-      {/* Hamburger Icon */}
-      <div className="hamburger-icon" onClick={toggleSidebar}>
-        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
-        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
-        <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+      {/* Hamburger Icon and Home Icon Container */}
+      <div style={{ position: 'fixed', left: '20px', top: '20px', zIndex: 1000 }}>
+        {/* Hamburger Icon */}
+        <div className="hamburger-icon" onClick={toggleSidebar}>
+          <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+          <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+          <div className={`bar ${sidebarOpen ? "change" : ""}`}></div>
+        </div>
+        
+        {/* Home Icon */}
+        <div 
+          style={{
+            marginTop: '40px',
+            cursor: 'pointer',
+            color: '#333',
+            fontSize: '30px',
+            textAlign: 'center'
+          }}
+          onClick={handleHomeClick}
+          title="Return to Home"
+        >
+          <FaHome />
+        </div>
       </div>
 
       {/* SideNav Component with building selection handler */}
