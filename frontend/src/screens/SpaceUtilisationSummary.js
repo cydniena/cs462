@@ -670,7 +670,7 @@ const SpaceUtilisationSummary = () => {
             roomsData} 
             selectBuilding={selectBuilding} 
         />
-        <div style={{maxWidth: "1000px", margin: "0 auto", display: "flex" }}>
+        <div style={{maxWidth: "1000px", marginLeft: "110px", display: "flex" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" , margin: "5px" }}>
             <label htmlFor="timeFilter">Time Filter:</label>
             <select
