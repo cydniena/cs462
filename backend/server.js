@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const roomRoutes = require('./routes/roomRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const { sendTelegramMessage } = require('./utils/telegramScheduler'); 
+require('./utils/telegramScheduler'); // Starts the cron job
 
 const app = express();
 const port = 5005;
@@ -25,6 +27,11 @@ mongoose.connect(atlasUri, {
 // Routes
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
+
+app.get('/send-weekly-telegram', async (req, res) => {
+    await sendTelegramMessage("Manual trigger: This is your weekly dashboard summary!");
+    res.send("Message sent!");
+  });
 
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
