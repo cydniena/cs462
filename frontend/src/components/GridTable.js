@@ -167,7 +167,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
         {/* Existing summary panel for space availability */}
         <div className="summary-panel">
           <div className="summary-card">
-            <h3>Space Availability</h3>
+            <h3>Building Availability</h3>
             <div className="summary-item">
               <span className="summary-label">Total Rooms:</span>
               <span className="summary-value">{roomCount}</span>
