@@ -14,9 +14,7 @@ import {
 
 const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   const [timeRange, setTimeRange] = useState("day");
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState("2025-01-17");
   const [selectedHour, setSelectedHour] = useState("8");
   const [processedData, setProcessedData] = useState({});
 
