@@ -128,7 +128,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
   return (
     <div className="utilization-container">
-      <h1>Utilization Summary</h1>
+      <h1>SMU Utilisation Summary</h1>
 
       <div className="dashboard-layout">
         <div className="table-container">
@@ -173,7 +173,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
               <span className="summary-value">{roomCount}</span>
             </div>
             <div className="summary-item">
-              <span className="summary-label">Average Utilization:</span>
+              <span className="summary-label">Average Utilisation:</span>
               <span className="summary-value">{averageUtilization}%</span>
             </div>
           </div>
@@ -183,15 +183,15 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
       <div className="legend">
         <div className="legend-item">
           <div className="legend-color low-utilization"></div>
-          <span>Low Utilization (0-59%)</span>
+          <span>Low Utilisation (0-59%)</span>
         </div>
         <div className="legend-item">
           <div className="legend-color medium-utilization"></div>
-          <span>Medium Utilization (60-79%)</span>
+          <span>Medium Utilisation (60-79%)</span>
         </div>
         <div className="legend-item">
           <div className="legend-color high-utilization"></div>
-          <span>High Utilization (80-100%)</span>
+          <span>High Utilisation (80-100%)</span>
         </div>
       </div>
 
@@ -208,11 +208,11 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
           <div className="summary-card">
             <h3>Utilization Overview</h3>
             <div className="summary-item">
-              <span className="summary-label">Average Hourly Utilization:</span>
+              <span className="summary-label">Average Hourly Utilisation:</span>
               <span className="summary-value">{averageHourlyUtilization}%</span>
             </div>
             <div className="summary-item">
-              <span className="summary-label">Average Daily Utilization:</span>
+              <span className="summary-label">Average Daily Utilisation:</span>
               <span className="summary-value">{averageDailyUtilization}%</span>
             </div>
           </div>
@@ -220,7 +220,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
         {/* Hourly Utilization Overview Chart */}
         <div className="chart-box" style={{ width: "40%" }}>
-          <h2>Hourly Utilization Overview</h2>
+          <h2>Hourly Utilisation Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={hourlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -246,7 +246,7 @@ const GridTable = ({ utilizationData, roomsData, selectedBuilding }) => {
 
         {/* Daily Average Utilization Overview Chart */}
         <div className="chart-box" style={{ width: "40%" }}>
-          <h2>Daily Average Utilization Overview</h2>
+          <h2>Daily Average Utilisation Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={dailyData}>
               <CartesianGrid strokeDasharray="3 3" />

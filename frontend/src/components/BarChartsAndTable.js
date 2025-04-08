@@ -55,7 +55,7 @@ const BarChartsAndTable = ({
               }}
               title={chartDescriptions.unbookedUtilized}
             >
-              Not Booked but Utilized Rooms
+              Not Booked but Utilised Rooms
               <span style={{
                 position: 'absolute',
                 bottom: '100%',
@@ -159,7 +159,7 @@ const BarChartsAndTable = ({
               }}
               title={chartDescriptions.bookedUnutilized}
             >
-              Booked but Unutilized Rooms
+              Booked but Unutilised Rooms
               <span style={{
                 position: 'absolute',
                 bottom: '100%',
@@ -259,7 +259,7 @@ const BarChartsAndTable = ({
               }}
               title={chartDescriptions.opportunity}
             >
-              Not Booked and Unutilized Rooms
+              Not Booked and Unutilised Rooms
               <span style={{
                 position: 'absolute',
                 bottom: '100%',

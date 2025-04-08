@@ -703,7 +703,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
   return (
     <div className="utilization-container">
-      <h1>{selectedRoom} Utilization Summary</h1>
+      <h1>{selectedRoom} Room Utilisation Summary</h1>
 
       <h3 className="text-lg font-bold text-gray-800 mb-4">Time Filters</h3>
       <div
@@ -778,7 +778,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
           </div>
         </div>
         <div className="summary-card">
-          <h3>Booked & Utilized</h3>
+          <h3>Booked & Utilised</h3>
           <div className="summary-item">
             <span
               className={`text-xl font-bold ${
@@ -794,7 +794,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
           </div>
         </div>
         <div className="summary-card">
-          <h3>Utilized Hours</h3>
+          <h3>Utilised Hours</h3>
           <div className="summary-item">
             <span className="text-xl font-bold text-blue-600">
               {utilized}hr/{totalHours}hr
@@ -802,7 +802,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
           </div>
         </div>
         <div className="summary-card">
-          <h3>Unutilized Hours</h3>
+          <h3>Unutilised Hours</h3>
           <div className="summary-item">
             <span className="text-xl font-bold text-red-600">
               {totalHours - utilized}hr/{totalHours}hr
@@ -864,15 +864,15 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
           <div className="legend">
             <div className="legend-item">
               <div className="legend-color low-utilization"></div>
-              <span>Low Utilization (0-59%)</span>
+              <span>Low Utilisation (0-59%)</span>
             </div>
             <div className="legend-item">
               <div className="legend-color medium-utilization"></div>
-              <span>Medium Utilization (60-79%)</span>
+              <span>Medium Utilisation (60-79%)</span>
             </div>
             <div className="legend-item">
               <div className="legend-color high-utilization"></div>
-              <span>High Utilization (80-100%)</span>
+              <span>High Utilisation (80-100%)</span>
             </div>
             <div className="legend-item">
               <div className="legend-color">B</div>
@@ -893,7 +893,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
       >
         {/* Hourly Utilization Overview Chart */}
         <div className="chart-box" style={{ width: "40%" }}>
-          <h2>Hourly Utilization Overview</h2>
+          <h2>Hourly Utilisation Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={hourlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -913,7 +913,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
         {/* Daily Average Utilization Overview Chart */}
         <div className="chart-box" style={{ width: "40%" }}>
-          <h2>Daily Average Utilization Overview</h2>
+          <h2>Daily Average Utilisation Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={dailyData}>
               <CartesianGrid strokeDasharray="3 3" />
