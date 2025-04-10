@@ -13,7 +13,7 @@ const RoomStats = ({
   // Operating hours configuration
   const OPERATING_HOURS = {
     start: 8, // 8AM
-    end: 22, // 10PM
+    end: 23, // 10PM
   };
   const HOURS_PER_DAY = OPERATING_HOURS.end - OPERATING_HOURS.start;
   const HOURS_PER_WEEK = HOURS_PER_DAY * 7;

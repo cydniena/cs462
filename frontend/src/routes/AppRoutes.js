@@ -10,6 +10,7 @@ import Floor from '../screens/Floor';
 import SideNav from '../screens/SideNav';
 import SpaceUtilisationSummary from '../screens/SpaceUtilisationSummary';
 import RoomDetail from '../screens/RoomDetail';
+import PeopleCountData from '../screens/PeopleCountData';
 
 const AppRoutes = () => {
     return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
                 <Route path="/sidenav" element={<SideNav/>} />
                 <Route path="/" element={<SpaceUtilisationSummary/>} />
                 <Route path="/roomSummary" element={<RoomDetail />} />
+                <Route path="/peopleCount" element={<PeopleCountData />} />
 
                 {/* <Route path="/bookingUtilized" element={<BookingUtilized />} />
                 <Route path="/floorHeatMap" element={<FloorHeatMap />} />

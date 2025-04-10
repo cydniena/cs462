@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const roomRoutes = require('./routes/roomRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const peopleCountRoutes = require('./routes/peopleCountRoutes');
 const { sendTelegramMessage } = require('./utils/telegramScheduler'); 
 require('./utils/telegramScheduler'); // Starts the cron job
 
@@ -24,9 +25,12 @@ mongoose.connect(atlasUri, {
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
 
+require('./utils/monitorPeopleCount');
+
 // Routes
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/peopleCounts', peopleCountRoutes);
 
 app.get('/send-weekly-telegram', async (req, res) => {
     await sendTelegramMessage("Manual trigger: This is your weekly dashboard summary!");

@@ -14,7 +14,7 @@ import {
 
 const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
   const [timeRange, setTimeRange] = useState("day");
-  const [selectedDate, setSelectedDate] = useState("2025-01-17");
+  const [selectedDate, setSelectedDate] = useState("2025-04-10");
   const [selectedHour, setSelectedHour] = useState("8");
   const [processedData, setProcessedData] = useState({});
 
@@ -494,7 +494,7 @@ const GridTable2 = ({ utilizationData, bookingsData, selectedRoom }) => {
 
   const OPERATING_HOURS = {
     start: 8, // 8AM
-    end: 22, // 10PM
+    end: 23, // 11PM
   };
   const HOURS_PER_DAY = OPERATING_HOURS.end - OPERATING_HOURS.start;
   const HOURS_PER_WEEK = HOURS_PER_DAY * 7;
