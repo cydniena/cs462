@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "../screens/css/summary.css";
+import "../screens/css/text.css";
 import { startOfWeek, addDays, parseISO, format } from "date-fns";
 import {
   BarChart,

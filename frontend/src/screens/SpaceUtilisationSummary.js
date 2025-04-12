@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../screens/css/SideNav.css';
-import GridTable from '../components/GridTable';
+import GridTable from '../components/SMUVisualisation';
 import SideNav from '../components/SideNav';
 import {
   Chart as ChartJS,

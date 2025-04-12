@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./css/data.css";
-import GridTable2 from "../components/GridTable2";
+import GridTable2 from "../components/RoomVisualisation";
 import SideNav from "../components/SideNav";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaHome } from "react-icons/fa"; // Importing the Home icon from react-icons
