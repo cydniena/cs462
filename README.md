@@ -2,7 +2,7 @@
 
 ## 🧩 Web Application
 
-**UtiliSense** is a web application that consists of a **React** frontend and a **Node.js/Express** backend. It displays visualizations based on image data captured by cameras and people count data stored in a **MongoDB** database.
+**UtiliSense** is a web application that consists of a **React** frontend and a **Node.js/Express** backend. It displays visualizations based on analysis of image data captured by cameras and people count data stored in a **MongoDB** database.
 
 ---
 
