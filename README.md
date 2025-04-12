@@ -1,5 +1,3 @@
-You're absolutely right — `README.md` is just one file, and you're asking for the whole thing in one clean block. I split it earlier just to explain things along the way, but here's the **entire, clean file** in one go — copy and paste this straight into your `README.md`:
-
 ```markdown
 # 📊 CS462 - UtiliSense
 
