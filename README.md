@@ -1,4 +1,3 @@
-```markdown
 # 📊 CS462 - UtiliSense
 
 ## 🧩 Web Application
@@ -71,10 +70,3 @@ The frontend will be running at: [http://localhost:3000](http://localhost:3000)
 This project visualizes people count data captured via cameras. The backend processes the data, stores it in MongoDB, and optionally sends updates via Telegram. The frontend fetches and displays the data through user-friendly visualizations.
 
 ---
-
-## 📬 Contact
-
-For any questions or suggestions, feel free to reach out:
-
-- GitHub: [cydniena](https://github.com/cydniena)
-```
